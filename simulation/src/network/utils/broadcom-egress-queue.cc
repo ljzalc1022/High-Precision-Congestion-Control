@@ -24,6 +24,8 @@
 #include "ns3/simulator.h"
 #include "drop-tail-queue.h"
 #include "broadcom-egress-queue.h"
+#include "ns3/boolean.h"
+#include "ns3/trace-source-accessor.h"
 
 NS_LOG_COMPONENT_DEFINE("BEgressQueue");
 
@@ -45,6 +47,11 @@ namespace ns3 {
 					MakeTraceSourceAccessor (&BEgressQueue::m_traceBeqEnqueue))
 			.AddTraceSource ("BeqDequeue", "Dequeue a packet in the BEgressQueue. Multiple queue",
 					MakeTraceSourceAccessor (&BEgressQueue::m_traceBeqDequeue))
+			.AddAttribute("EnableSketch",
+				"Enable or disable sketch.",
+				BooleanValue(false),
+				MakeBooleanAccessor(&BEgressQueue::m_enableSketch),
+				MakeBooleanChecker())
 			;
 
 		return tid;
@@ -60,6 +67,10 @@ namespace ns3 {
 		{
 			m_bytesInQueue[i] = 0;
 			m_queues.push_back(CreateObject<DropTailQueue>());
+		}
+		if (m_enableSketch) 
+		{
+			m_sketch = new CmSketch(2, 65537);
 		}
 	}
 
@@ -152,6 +163,23 @@ namespace ns3 {
 			m_traceEnqueue(p);
 			m_traceBeqEnqueue(p, qIndex);
 
+			if (m_enableSketch) 
+			{
+				m_sketch->UpdateCounter(p);
+				if (CheckCongestion())
+				{
+					if (m_sketch->GetHeavyHitters(p))
+					{
+						BigflowTag tag;
+						if (!p->FindFirstMatchingByteTag(tag))
+						{
+							p->AddByteTag(tag);
+						}
+						NS_ASSERT(p->FindFirstMatchingByteTag(tag));
+					}
+				}
+			}
+
 			uint32_t size = p->GetSize();
 			m_nBytes += size;
 			m_nTotalReceivedBytes += size;
@@ -171,6 +199,9 @@ namespace ns3 {
 		{
 			NS_ASSERT(m_nBytes >= packet->GetSize());
 			NS_ASSERT(m_nPackets > 0);
+
+			m_sketch->UpdateTxBytes(packet);
+
 			m_nBytes -= packet->GetSize();
 			m_nPackets--;
 			NS_LOG_LOGIC("m_traceDequeue (packet)");
@@ -239,6 +270,13 @@ namespace ns3 {
 		BEgressQueue::GetLastQueue()
 	{
 		return m_qlast;
+	}
+
+	bool 
+		BEgressQueue::CheckCongestion() const
+	{
+		// congestion condition not implemented yet;
+		return true;
 	}
 
 }

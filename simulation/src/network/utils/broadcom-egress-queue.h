@@ -25,6 +25,8 @@
 #include "drop-tail-queue.h"
 #include "ns3/point-to-point-net-device.h"
 #include "ns3/event-id.h"
+#include "ns3/bigflow-tag.h"
+#include "ns3/cm-sketch.h"
 
 namespace ns3 {
 
@@ -59,6 +61,10 @@ namespace ns3 {
 		uint32_t m_rrlast;
 		uint32_t m_qlast;
 		std::vector<Ptr<Queue> > m_queues; // uc queues
+
+		bool m_enableSketch;
+		CmSketch* m_sketch;
+		bool CheckCongestion() const;
 	};
 
 } // namespace ns3
