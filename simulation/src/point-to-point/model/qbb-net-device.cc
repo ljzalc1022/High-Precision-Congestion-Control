@@ -46,6 +46,7 @@
 #include "ns3/seq-ts-header.h"
 #include "ns3/pointer.h"
 #include "ns3/custom-header.h"
+#include "ns3/bigflow-tag.h"
 
 #include <iostream>
 

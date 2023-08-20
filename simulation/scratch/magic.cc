@@ -70,6 +70,9 @@ double u_target = 0.95;
 uint32_t int_multi = 1;
 bool rate_bound = true;
 
+bool enable_sketch;
+bool enable_magic;
+
 uint32_t ack_high_prio = 0;
 uint64_t link_down_time = 0;
 uint32_t link_down_A = 0, link_down_B = 0;
@@ -650,6 +653,12 @@ int main(int argc, char *argv[])
 			}else if (key.compare("PINT_PROB") == 0){
 				conf >> pint_prob;
 				std::cout << "PINT_PROB\t\t\t\t" << pint_prob << '\n';
+			}else if (key.compare("ENABLE_SKETCH") == 0){
+				conf >> enable_sketch;
+				std::cout << "ENABLE_SKETCH\t\t\t\t" << enable_sketch << "\n";
+			}else if (key.compare("ENABLE_MAGIC") == 0){
+				conf >> enable_magic;
+				std::cout << "ENABLE_MAGIC\t\t\t\t" << enable_magic << "\n";
 			}
 			fflush(stdout);
 		}
@@ -668,6 +677,8 @@ int main(int argc, char *argv[])
 	Config::SetDefault("ns3::QbbNetDevice::PauseTime", UintegerValue(pause_time));
 	Config::SetDefault("ns3::QbbNetDevice::QcnEnabled", BooleanValue(enable_qcn));
 	Config::SetDefault("ns3::QbbNetDevice::DynamicThreshold", BooleanValue(dynamicth));
+
+	Config::SetDefault("ns3::BEgressQueue::EnableSketch", BooleanValue(enable_sketch));
 
 	// set int_multi
 	IntHop::multi = int_multi;
@@ -880,6 +891,7 @@ int main(int argc, char *argv[])
 			rdmaHw->SetAttribute("TargetUtil", DoubleValue(u_target));
 			rdmaHw->SetAttribute("RateBound", BooleanValue(rate_bound));
 			rdmaHw->SetAttribute("DctcpRateAI", DataRateValue(DataRate(dctcp_rate_ai)));
+			rdmaHw->SetAttribute("EnableMagicControl", BooleanValue(enable_magic));
 			rdmaHw->SetPintSmplThresh(pint_prob);
 			// create and install RdmaDriver
 			Ptr<RdmaDriver> rdma = CreateObject<RdmaDriver>();

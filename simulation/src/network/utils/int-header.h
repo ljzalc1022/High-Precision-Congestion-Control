@@ -90,6 +90,7 @@ public:
 		struct {
 			IntHop hop[maxHop];
 			uint16_t nhop;
+			uint16_t bigflowMark;
 		};
 		uint64_t ts;
 		union {
@@ -102,7 +103,7 @@ public:
 
 	IntHeader();
 	static uint32_t GetStaticSize();
-	void PushHop(uint64_t time, uint64_t bytes, uint32_t qlen, uint64_t rate);
+	void PushHop(uint64_t time, uint64_t bytes, uint32_t qlen, uint64_t rate, bool isBigflow);
 	void Serialize (Buffer::Iterator start) const;
 	uint32_t Deserialize (Buffer::Iterator start);
 	uint64_t GetTs(void);

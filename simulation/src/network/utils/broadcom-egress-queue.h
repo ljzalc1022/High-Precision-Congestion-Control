@@ -65,6 +65,7 @@ namespace ns3 {
 		bool m_enableSketch;
 		CmSketch* m_sketch;
 		bool CheckCongestion() const;
+		bool IsDataPacket(Ptr<Packet> p) const;
 	};
 
 } // namespace ns3

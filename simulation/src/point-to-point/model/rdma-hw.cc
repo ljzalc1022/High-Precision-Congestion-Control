@@ -174,6 +174,11 @@ TypeId RdmaHw::GetTypeId (void)
 				UintegerValue(65536),
 				MakeUintegerAccessor(&RdmaHw::pint_smpl_thresh),
 				MakeUintegerChecker<uint32_t>())
+		.AddAttribute("EnableMagicControl",
+				"Enable magic's host rate control",
+				BooleanValue(false),
+				MakeBooleanAccessor(&RdmaHw::m_enableMagic),
+				MakeBooleanChecker())
 		;
 	return tid;
 }
@@ -743,9 +748,19 @@ void RdmaHw::HyperIncreaseMlx(Ptr<RdmaQueuePair> q){
  ***********************/
 void RdmaHw::HandleAckHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch){
 	uint32_t ack_seq = ch.ack.seq;
+
+	IntHeader &ih = ch.ack.ih;
+	bool bigflowMark = (ih.bigflowMark == 1) ? true : false;
+	if (bigflowMark)
+	{
+		// std::cout << "Received!" << std::endl;
+		m_isBigflow = true;
+	}
+
 	// update rate
 	if (ack_seq > qp->hp.m_lastUpdateSeq){ // if full RTT feedback is ready, do full update
 		UpdateRateHp(qp, p, ch, false);
+		m_isBigflow = false;
 	}else{ // do fast react
 		FastReactHp(qp, p, ch);
 	}
@@ -887,12 +902,33 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 				printf("\n");
 				#endif
 			}
-			if (updated_any)
-				ChangeRate(qp, new_rate);
+
+			// 目前还只针对 m_multipleRate = false 的情况做了更改
+			if (updated_any){
+				if (m_enableMagic){
+					if (!m_isBigflow && new_rate < qp->m_rate){
+						// If not big flow, don't decrease rate. So don't do anything.
+					}else{ 
+						ChangeRate(qp, new_rate);
+					}
+				}else{
+					ChangeRate(qp, new_rate);
+				}
+			}
+
 			if (!fast_react){
 				if (updated_any){
-					qp->hp.m_curRate = new_rate;
-					qp->hp.m_incStage = new_incStage;
+					if (m_enableMagic){
+						if (!m_isBigflow && new_rate < qp->hp.m_curRate){
+							// If not big flow, don't decrease curRate. So don't do anything.
+						}else{
+							qp->hp.m_curRate = new_rate;
+							qp->hp.m_incStage = new_incStage;
+						}
+					}else{
+						qp->hp.m_curRate = new_rate;
+						qp->hp.m_incStage = new_incStage;
+					}
 				}
 				if (m_multipleRate){
 					// for per hop (per hop R)

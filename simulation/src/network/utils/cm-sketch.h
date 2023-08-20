@@ -51,6 +51,7 @@ private:
     void UpdateDistribution(uint32_t old_v, uint32_t new_v);
     
     uint32_t Hash(Ptr<Packet> item, uint32_t permutation) const;
+    uint32_t HashFunction(uint32_t sip, uint32_t dip, uint16_t sport, uint16_t dport, uint16_t pg, uint32_t permutation) const;
 };
 
 }

@@ -8,14 +8,14 @@ uint32_t IntHop::multi = 1;
 IntHeader::Mode IntHeader::mode = NONE;
 int IntHeader::pint_bytes = 2;
 
-IntHeader::IntHeader() : nhop(0) {
+IntHeader::IntHeader() : nhop(0), bigflowMark(0) {
 	for (uint32_t i = 0; i < maxHop; i++)
 		hop[i] = {0};
 }
 
 uint32_t IntHeader::GetStaticSize(){
 	if (mode == NORMAL){
-		return sizeof(hop) + sizeof(nhop);
+		return sizeof(hop) + sizeof(nhop) + sizeof(bigflowMark);
 	}else if (mode == TS){
 		return sizeof(ts);
 	}else if (mode == PINT){
@@ -25,12 +25,13 @@ uint32_t IntHeader::GetStaticSize(){
 	}
 }
 
-void IntHeader::PushHop(uint64_t time, uint64_t bytes, uint32_t qlen, uint64_t rate){
+void IntHeader::PushHop(uint64_t time, uint64_t bytes, uint32_t qlen, uint64_t rate, bool isBigflow){
 	// only do this in INT mode
 	if (mode == NORMAL){
 		uint32_t idx = nhop % maxHop;
 		hop[idx].Set(time, bytes, qlen, rate);
 		nhop++;
+		bigflowMark = isBigflow ? 1 : bigflowMark;
 	}
 }
 
@@ -42,6 +43,7 @@ void IntHeader::Serialize (Buffer::Iterator start) const{
 			i.WriteU32(hop[j].buf[1]);
 		}
 		i.WriteU16(nhop);
+		i.WriteU16(bigflowMark);
 	}else if (mode == TS){
 		i.WriteU64(ts);
 	}else if (mode == PINT){
@@ -60,6 +62,7 @@ uint32_t IntHeader::Deserialize (Buffer::Iterator start){
 			hop[j].buf[1] = i.ReadU32();
 		}
 		nhop = i.ReadU16();
+		bigflowMark = i.ReadU16();
 	}else if (mode == TS){
 		ts = i.ReadU64();
 	}else if (mode == PINT){

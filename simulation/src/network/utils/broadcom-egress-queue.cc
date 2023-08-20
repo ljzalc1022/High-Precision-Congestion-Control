@@ -26,6 +26,8 @@
 #include "broadcom-egress-queue.h"
 #include "ns3/boolean.h"
 #include "ns3/trace-source-accessor.h"
+#include "ns3/custom-header.h"
+#include "ns3/assert.h"
 
 NS_LOG_COMPONENT_DEFINE("BEgressQueue");
 
@@ -68,15 +70,19 @@ namespace ns3 {
 			m_bytesInQueue[i] = 0;
 			m_queues.push_back(CreateObject<DropTailQueue>());
 		}
-		if (m_enableSketch) 
-		{
-			m_sketch = new CmSketch(2, 65537);
-		}
+		// std::cout << "enableSketch = " << m_enableSketch << std::endl;
 	}
 
 	BEgressQueue::~BEgressQueue()
 	{
 		NS_LOG_FUNCTION_NOARGS();
+		if (m_enableSketch) 
+		{
+			if (m_sketch != nullptr)
+			{
+				delete m_sketch;
+			}
+		}
 	}
 
 	bool
@@ -86,6 +92,30 @@ namespace ns3 {
 
 		if (m_bytesInQueueTotal + p->GetSize() < m_maxBytes)  //infinite queue
 		{
+			if (m_enableSketch) 
+			{
+				if (IsDataPacket(p))
+				{
+					if (m_sketch == nullptr) 
+					{
+						m_sketch = new CmSketch(2, 65537);
+					}
+					m_sketch->UpdateCounter(p);
+					// std::cout << "packet inserted" << std::endl;
+					if (CheckCongestion())
+					{
+						// std::cout << "Congestion occurs!" << std::endl;
+						if (m_sketch->GetHeavyHitters(p))
+						{
+							// std::cout << "Bigflow Tagged in queue!" << std::endl;
+							BigflowTag tag;
+							NS_ASSERT(p->FindFirstMatchingByteTag(tag) == false);
+							p->AddByteTag(tag);
+							NS_ASSERT(p->FindFirstMatchingByteTag(tag) == true);
+						}
+					}
+				}
+			}
 			m_queues[qIndex]->Enqueue(p);
 			m_bytesInQueueTotal += p->GetSize();
 			m_bytesInQueue[qIndex] += p->GetSize();
@@ -163,23 +193,6 @@ namespace ns3 {
 			m_traceEnqueue(p);
 			m_traceBeqEnqueue(p, qIndex);
 
-			if (m_enableSketch) 
-			{
-				m_sketch->UpdateCounter(p);
-				if (CheckCongestion())
-				{
-					if (m_sketch->GetHeavyHitters(p))
-					{
-						BigflowTag tag;
-						if (!p->FindFirstMatchingByteTag(tag))
-						{
-							p->AddByteTag(tag);
-						}
-						NS_ASSERT(p->FindFirstMatchingByteTag(tag));
-					}
-				}
-			}
-
 			uint32_t size = p->GetSize();
 			m_nBytes += size;
 			m_nTotalReceivedBytes += size;
@@ -200,7 +213,13 @@ namespace ns3 {
 			NS_ASSERT(m_nBytes >= packet->GetSize());
 			NS_ASSERT(m_nPackets > 0);
 
-			m_sketch->UpdateTxBytes(packet);
+			if (m_enableSketch)
+			{
+				if (IsDataPacket(packet))
+				{
+					m_sketch->UpdateTxBytes(packet);
+				}
+			}
 
 			m_nBytes -= packet->GetSize();
 			m_nPackets--;
@@ -275,8 +294,19 @@ namespace ns3 {
 	bool 
 		BEgressQueue::CheckCongestion() const
 	{
-		// congestion condition not implemented yet;
-		return true;
+		return GetNBytesTotal() > 0;
 	}
 
+	bool
+		BEgressQueue::IsDataPacket(Ptr<Packet> p) const
+	{
+		// don't need to parse L4 header and INT header
+		CustomHeader ch(CustomHeader::L2_Header | CustomHeader::L3_Header);
+		ch.getInt = 0;
+		p->PeekHeader(ch);
+		if (ch.l3Prot == 0x11) // udp, which means the packet is a data packet
+			return true;
+		else
+			return false;
+	}
 }
