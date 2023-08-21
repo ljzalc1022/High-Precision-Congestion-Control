@@ -44,6 +44,8 @@ public:
 
 	bool m_isBigflow{false};
 	bool m_enableMagic;
+	TracedCallback<Ptr<Packet> > m_rxTrace;
+	TracedCallback<Ptr<Packet> > m_txTrace;
 
 	// qp complete callback
 	typedef Callback<void, Ptr<RdmaQueuePair> > QpCompleteCallback;

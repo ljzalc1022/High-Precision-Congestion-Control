@@ -179,6 +179,12 @@ TypeId RdmaHw::GetTypeId (void)
 				BooleanValue(false),
 				MakeBooleanAccessor(&RdmaHw::m_enableMagic),
 				MakeBooleanChecker())
+		.AddTraceSource("Rx",
+				"A packet has been received",
+				MakeTraceSourceAccessor(&RdmaHw::m_rxTrace))
+		.AddTraceSource("Tx",
+				"A packet has been transmitted",
+				MakeTraceSourceAccessor(&RdmaHw::m_txTrace))
 		;
 	return tid;
 }
