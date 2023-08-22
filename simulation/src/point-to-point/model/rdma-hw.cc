@@ -180,7 +180,7 @@ TypeId RdmaHw::GetTypeId (void)
 				MakeBooleanAccessor(&RdmaHw::m_enableMagic),
 				MakeBooleanChecker())
 		.AddTraceSource("Rx",
-				"A packet has been received",
+				"A data packet has been received",
 				MakeTraceSourceAccessor(&RdmaHw::m_rxTrace))
 		.AddTraceSource("Tx",
 				"A packet has been transmitted",

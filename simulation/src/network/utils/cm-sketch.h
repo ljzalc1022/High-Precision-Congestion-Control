@@ -39,7 +39,7 @@ public:
 
 private:
     const uint32_t granularity = 5;
-    Time m_windowSize{MilliSeconds(10)}; // window size = 0.5 base RTT
+    Time m_windowSize{NanoSeconds(6120)}; // window size = 0.5 base RTT
     
     uint32_t pointer;
 

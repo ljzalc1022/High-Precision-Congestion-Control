@@ -336,6 +336,14 @@ uint64_t get_nic_rate(NodeContainer &n){
 			return DynamicCast<QbbNetDevice>(n.Get(i)->GetDevice(1))->GetDataRate().GetBitRate();
 }
 
+const Time progressInterval = MilliSeconds(10);
+void PrintProgress()
+{
+    std::cout << "Progress to " << std::fixed
+              << Simulator::Now().GetSeconds() << " seconds simulation time" << std::endl;
+    Simulator::Schedule(progressInterval, &PrintProgress);
+}
+
 int main(int argc, char *argv[])
 {
 	clock_t begint, endt;
@@ -1022,6 +1030,7 @@ int main(int argc, char *argv[])
 	//
 	// Now, do the actual simulation.
 	//
+	Simulator::Schedule(progressInterval, &PrintProgress);
 	std::cout << "Running Simulation.\n";
 	fflush(stdout);
 	NS_LOG_INFO("Run Simulation.");
