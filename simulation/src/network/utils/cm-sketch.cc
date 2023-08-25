@@ -126,6 +126,9 @@ bool CmSketch::GetHeavyHitters (Ptr<Packet> item) {
 
 void CmSketch::ClearWindow()
 {
+    // if (Simulator::Now().GetSeconds() > 2.01) {
+    //     std::cout << GetCard() << " " << total_bytes << std::endl;
+    // }
     // update the pointer
     pointer = (pointer + 1) % granularity;
 
@@ -192,7 +195,7 @@ CmSketch::HashFunction(uint32_t sip, uint32_t dip, uint16_t sport, uint16_t dpor
     uint32_t hash = 0;
 
     hash ^= sip;
-    hash ^= dip;
+    hash += dip;
     hash ^= sport;
     hash ^= dport;
     hash ^= pg;

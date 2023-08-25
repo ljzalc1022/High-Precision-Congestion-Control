@@ -756,18 +756,22 @@ void RdmaHw::HyperIncreaseMlx(Ptr<RdmaQueuePair> q){
 void RdmaHw::HandleAckHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch){
 	uint32_t ack_seq = ch.ack.seq;
 
-	IntHeader &ih = ch.ack.ih;
-	bool bigflowMark = (ih.bigflowMark == 1) ? true : false;
-	if (bigflowMark)
-	{
-		// std::cout << "Received!" << std::endl;
-		m_isBigflow = true;
+	if (m_enableMagic) {
+		IntHeader &ih = ch.ack.ih;
+		bool bigflowMark = (ih.bigflowMark == 1) ? true : false;
+		if (bigflowMark)
+		{
+			// std::cout << "Received!" << std::endl;
+			m_isBigflow = true;
+		}
 	}
 
 	// update rate
 	if (ack_seq > qp->hp.m_lastUpdateSeq){ // if full RTT feedback is ready, do full update
 		UpdateRateHp(qp, p, ch, false);
-		m_isBigflow = false;
+		if (m_enableMagic) {
+			m_isBigflow = false;
+		}
 	}else{ // do fast react
 		FastReactHp(qp, p, ch);
 	}
@@ -826,10 +830,19 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 				#endif
 				if (!m_multipleRate){
 					// for aggregate (single R)
-					if (u > U){
-						U = u;
-						dt = tau;
-					}
+					// if (m_enableMagic){
+					// 	if (ih.hop[i].bigflow == 1){
+					// 		if (u > U){
+					// 			U = u;
+					// 			dt = tau;
+					// 		}
+					// 	}
+					// }else{
+						if (u > U){
+							U = u;
+							dt = tau;
+						}						
+					// }
 				}else {
 					// for per hop (per hop R)
 					if (tau > qp->m_baseRtt)
