@@ -8,7 +8,7 @@ def Average(a):
     return sum / len(a)
 
 import sys
-fct_f = open("./mix/hpcc_fat_raw_fct.txt")
+fct_f = open("./mix/fat/hpcc_fat_raw_fct.txt")
 out_f = open("./process_fct_raw.txt", "w")
 
 N = 4

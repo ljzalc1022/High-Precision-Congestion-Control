@@ -1067,7 +1067,7 @@ int main(int argc, char *argv[])
 	Simulator::Schedule(startTime, &InitializeCounters);
 	Simulator::Schedule(startTime + measurementInterval, &PrintThroughput, measurementInterval);
 
-	std::string output_folder = "./experiment-results/hpcc/conv/";
+	std::string output_folder = "./experiment-results/hpcc/conv/raw/";
 	for (std::size_t i = 0; i < 5; ++i)
 	{
 		std::string filename = output_folder + "flow-thru-" + std::to_string(i) + ".dat";
