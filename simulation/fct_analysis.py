@@ -8,12 +8,12 @@ def Average(a):
     return sum / len(a)
 
 import sys
-fct_f = open("./mix/fat/hpcc_fat_raw_fct.txt")
-out_f = open("./process_fct_raw.txt", "w")
+fct_f = open("./experiment-results/hpcc/fat/25_50load/magic_5_100_0.1s/fct.txt")
+out_f = open("./experiment-results/hpcc/fat/25_50load/magic_5_100_0.1s/fct_ana.txt", "w")
 
-N = 4
-partition_name = ["10KB", "100KB", "1MB", "10MB"]
-partition_point = [10000, 100000, 1000000, 10000000]
+N = 3
+partition_name = ["100KB", "1MB", "10MB"]
+partition_point = [100000, 1000000, 10000000]
 partition_arrays = [[], [], [], [], []]
 
 for line in fct_f.readlines():

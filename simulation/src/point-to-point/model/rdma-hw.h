@@ -46,6 +46,7 @@ public:
 	bool m_enableMagic;
 	TracedCallback<Ptr<Packet> > m_rxTrace;
 	TracedCallback<Ptr<Packet> > m_txTrace;
+	bool m_traceRate{false};
 
 	// qp complete callback
 	typedef Callback<void, Ptr<RdmaQueuePair> > QpCompleteCallback;

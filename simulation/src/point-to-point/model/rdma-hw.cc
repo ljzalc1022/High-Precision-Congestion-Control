@@ -185,7 +185,11 @@ TypeId RdmaHw::GetTypeId (void)
 		.AddTraceSource("Tx",
 				"A packet has been transmitted",
 				MakeTraceSourceAccessor(&RdmaHw::m_txTrace))
-		;
+		.AddAttribute("TraceRate",
+				"Trace the change of rate",
+				BooleanValue(false),
+				MakeBooleanAccessor(&RdmaHw::m_traceRate),
+				MakeBooleanChecker());
 	return tid;
 }
 
@@ -618,7 +622,10 @@ void RdmaHw::ChangeRate(Ptr<RdmaQueuePair> qp, DataRate new_rate){
 	uint32_t nic_idx = GetNicIdxOfQp(qp);
 	m_nic[nic_idx].dev->UpdateNextAvail(qp->m_nextAvail);
 	#endif
-
+	if (m_traceRate) {
+		std::cout << "Changing rate from " << qp->m_rate.GetBitRate() << " to " << new_rate.GetBitRate()
+			      << " at " << Simulator::Now().GetNanoSeconds() << std::endl;
+	}
 	// change to new rate
 	qp->m_rate = new_rate;
 }
@@ -830,19 +837,16 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 				#endif
 				if (!m_multipleRate){
 					// for aggregate (single R)
-					// if (m_enableMagic){
-					// 	if (ih.hop[i].bigflow == 1){
-					// 		if (u > U){
-					// 			U = u;
-					// 			dt = tau;
-					// 		}
-					// 	}
-					// }else{
+					if (m_enableMagic){
+						if (tau > qp->m_baseRtt)
+							tau = qp->m_baseRtt;
+						qp->hp.hopState[i].u = (qp->hp.hopState[i].u * (qp->m_baseRtt - tau) + u * tau) / double(qp->m_baseRtt);
+					}else{
 						if (u > U){
 							U = u;
 							dt = tau;
 						}						
-					// }
+					}
 				}else {
 					// for per hop (per hop R)
 					if (tau > qp->m_baseRtt)
@@ -858,11 +862,25 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 			int32_t new_incStage_per_hop[IntHeader::maxHop];
 			if (!m_multipleRate){
 				// for aggregate (single R)
+				if (m_enableMagic){
+					for (uint32_t i = 0; i < ih.nhop; i++){
+						if (updated[i]){
+							double c = qp->hp.hopState[i].u / m_targetUtil;
+							if (c >= 1 && ih.hop[i].bigflow == 0) {
+								max_c = 1;
+							} else{
+								max_c = (c > max_c) ? c : max_c;
+							}
+						}
+					}
+				}
 				if (updated_any){
-					if (dt > qp->m_baseRtt)
-						dt = qp->m_baseRtt;
-					qp->hp.u = (qp->hp.u * (qp->m_baseRtt - dt) + U * dt) / double(qp->m_baseRtt);
-					max_c = qp->hp.u / m_targetUtil;
+					if (!m_enableMagic) {
+						if (dt > qp->m_baseRtt)
+							dt = qp->m_baseRtt;
+						qp->hp.u = (qp->hp.u * (qp->m_baseRtt - dt) + U * dt) / double(qp->m_baseRtt);
+						max_c = qp->hp.u / m_targetUtil;
+					}
 
 					if (max_c >= 1 || qp->hp.m_incStage >= m_miThresh){
 						new_rate = qp->hp.m_curRate / max_c + m_rai;
@@ -925,30 +943,30 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 
 			// 目前还只针对 m_multipleRate = false 的情况做了更改
 			if (updated_any){
-				if (m_enableMagic){
-					if (!m_isBigflow && new_rate < qp->m_rate){
-						// If not big flow, don't decrease rate. So don't do anything.
-					}else{ 
-						ChangeRate(qp, new_rate);
-					}
-				}else{
+				// if (m_enableMagic){
+				// 	if (!m_isBigflow && new_rate < qp->m_rate){
+				// 		// If not big flow, don't decrease rate. So don't do anything.
+				// 	}else{ 
+				// 		ChangeRate(qp, new_rate);
+				// 	}
+				// }else{
 					ChangeRate(qp, new_rate);
-				}
+				// }
 			}
 
 			if (!fast_react){
 				if (updated_any){
-					if (m_enableMagic){
-						if (!m_isBigflow && new_rate < qp->hp.m_curRate){
-							// If not big flow, don't decrease curRate. So don't do anything.
-						}else{
-							qp->hp.m_curRate = new_rate;
-							qp->hp.m_incStage = new_incStage;
-						}
-					}else{
+					// if (m_enableMagic){
+					// 	if (!m_isBigflow && new_rate < qp->hp.m_curRate){
+					// 		// If not big flow, don't decrease curRate. So don't do anything.
+					// 	}else{
+					// 		qp->hp.m_curRate = new_rate;
+					// 		qp->hp.m_incStage = new_incStage;
+					// 	}
+					// }else{
 						qp->hp.m_curRate = new_rate;
 						qp->hp.m_incStage = new_incStage;
-					}
+					// }
 				}
 				if (m_multipleRate){
 					// for per hop (per hop R)

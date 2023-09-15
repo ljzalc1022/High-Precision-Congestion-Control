@@ -294,7 +294,8 @@ namespace ns3 {
 	bool 
 		BEgressQueue::CheckCongestion() const
 	{
-		return GetNBytesTotal() > 0;
+		// return GetNBytesTotal() > 0;
+		return true;
 	}
 
 	bool

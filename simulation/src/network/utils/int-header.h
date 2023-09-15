@@ -11,14 +11,16 @@ class IntHop{
 public:
 	static const uint32_t timeWidth = 24;
 	static const uint32_t bytesWidth = 20;
-	static const uint32_t qlenWidth = 17;
+	static const uint32_t qlenWidth = 16;
+	static const uint32_t bigflowWidth = 1;
 	static const uint64_t lineRateValues[8];
 	union{
 		struct {
-			uint64_t lineRate: 64-timeWidth-bytesWidth-qlenWidth,
+			uint64_t lineRate: 64-timeWidth-bytesWidth-qlenWidth-bigflowWidth,
 					 time: timeWidth,
 					 bytes: bytesWidth,
-					 qlen: qlenWidth;
+					 qlen: qlenWidth,
+					 bigflow: bigflowWidth;
 		};
 		uint32_t buf[2];
 	};

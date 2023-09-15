@@ -81,7 +81,7 @@ uint32_t enable_trace = 1;
 
 uint32_t buffer_size = 16;
 
-uint32_t qlen_dump_interval = 100000000, qlen_mon_interval = 100;
+uint32_t qlen_dump_interval = 100000000, qlen_mon_interval = 100000;
 uint64_t qlen_mon_start = 2000000000, qlen_mon_end = 2100000000;
 string qlen_mon_file;
 
@@ -221,6 +221,26 @@ void monitor_buffer(FILE* qlen_output, NodeContainer *n){
 	}
 	if (Simulator::Now().GetTimeStep() < qlen_mon_end)
 		Simulator::Schedule(NanoSeconds(qlen_mon_interval), &monitor_buffer, qlen_output, n);
+}
+
+std::ofstream qLen;
+void monitor_qlen(NodeContainer *n){
+	for (uint32_t i = 320; i <= 375; i++){
+		if (n->Get(i)->GetNodeType() == 1){
+			Ptr<SwitchNode> sw = DynamicCast<SwitchNode>(n->Get(i));
+			for (uint32_t j = 1; j < sw->GetNDevices(); j++){
+				uint32_t size = 0;
+				for (uint32_t k = 0; k < SwitchMmu::qCnt; k++)
+					size += sw->m_mmu->egress_bytes[j][k];
+				if (size > 0)
+					qLen << Simulator::Now().GetNanoSeconds() << " " << i << " " 
+					     << j << " " << size << std::endl;			
+			}
+		}
+	}
+
+	if (Simulator::Now().GetTimeStep() < qlen_mon_end)
+		Simulator::Schedule(NanoSeconds(qlen_mon_interval), &monitor_qlen, n);
 }
 
 void CalculateRoute(Ptr<Node> host){
@@ -1024,9 +1044,10 @@ int main(int argc, char *argv[])
 	}
 
 	// schedule buffer monitor
-	FILE* qlen_output = fopen(qlen_mon_file.c_str(), "w");
-	Simulator::Schedule(NanoSeconds(qlen_mon_start), &monitor_buffer, qlen_output, &n);
-
+	// FILE* qlen_output = fopen(qlen_mon_file.c_str(), "w");
+	// Simulator::Schedule(NanoSeconds(qlen_mon_start), &monitor_buffer, qlen_output, &n);
+	qLen.open("./mix/fat/qLen.dat");
+	Simulator::Schedule(NanoSeconds(qlen_mon_start), &monitor_qlen, &n);
 	//
 	// Now, do the actual simulation.
 	//
