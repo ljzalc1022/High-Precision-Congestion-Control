@@ -36,7 +36,6 @@
 #include <ns3/rdma-driver.h>
 #include <ns3/switch-node.h>
 #include <ns3/sim-setting.h>
-#include <string>
 
 using namespace ns3;
 using namespace std;
@@ -71,8 +70,20 @@ double u_target = 0.95;
 uint32_t int_multi = 1;
 bool rate_bound = true;
 
+// config parameters specially for sketch
 bool enable_sketch;
 bool enable_magic;
+
+uint32_t sketch_depth = 2, sketch_width = 65537;
+uint32_t sketch_granulatiry = 5;
+double sketch_window_size = 0.5;
+uint32_t magic_hh_mode = 0;
+uint64_t magic_offset = 0;
+double magic_u = 0.45;
+std::string qlen_output_file = "qlen.txt";
+
+std::ofstream log_output;
+std::string log_output_file = "log.txt";
 
 uint32_t ack_high_prio = 0;
 uint64_t link_down_time = 0;
@@ -82,7 +93,7 @@ uint32_t enable_trace = 1;
 
 uint32_t buffer_size = 16;
 
-uint32_t qlen_dump_interval = 1000000, qlen_mon_interval = 100;
+uint32_t qlen_dump_interval = 100000000, qlen_mon_interval = 100000;
 uint64_t qlen_mon_start = 2000000000, qlen_mon_end = 2100000000;
 string qlen_mon_file;
 
@@ -224,6 +235,24 @@ void monitor_buffer(FILE* qlen_output, NodeContainer *n){
 		Simulator::Schedule(NanoSeconds(qlen_mon_interval), &monitor_buffer, qlen_output, n);
 }
 
+void monitor_qlen(FILE* qlen_output, NodeContainer *n){
+	for (uint32_t i = 320; i <= 375; i++){
+		if (n->Get(i)->GetNodeType() == 1){
+			Ptr<SwitchNode> sw = DynamicCast<SwitchNode>(n->Get(i));
+			for (uint32_t j = 1; j < sw->GetNDevices(); j++){
+				uint32_t size = 0;
+				for (uint32_t k = 0; k < SwitchMmu::qCnt; k++)
+					size += sw->m_mmu->egress_bytes[j][k];
+				if (size > 0)
+                    fprintf(qlen_output, "%ld %u %u %u\n", Simulator::Now().GetNanoSeconds(), i, j, size);		
+			}
+		}
+	}
+
+	if (Simulator::Now().GetTimeStep() < qlen_mon_end)
+		Simulator::Schedule(NanoSeconds(qlen_mon_interval), &monitor_qlen, qlen_output, n);
+}
+
 void CalculateRoute(Ptr<Node> host){
 	// queue for the BFS.
 	vector<Ptr<Node> > q;
@@ -345,34 +374,6 @@ void PrintProgress()
     Simulator::Schedule(progressInterval, &PrintProgress);
 }
 
-// Measure throughput
-uint64_t rxBytes[4];
-std::ofstream rxThru[4];
-void InitializeCounters()
-{
-	for (std::size_t i = 0; i < 4; ++i)
-	{
-		rxBytes[i] = 0;
-	}
-}
-
-void TraceSinkRx(std::size_t index, Ptr<Packet> p)
-{
-	rxBytes[index] += p->GetSize();
-}
-
-Time measurementInterval = NanoSeconds(12000);
-void PrintThroughput(Time measurementTime)
-{
-	for (std::size_t i = 0; i < 4; ++i)
-	{
-		rxThru[i] << std::fixed << measurementTime.GetSeconds() << " "
-				  << (rxBytes[i] * 8) / measurementInterval.GetSeconds() / 1e9 << std::endl;
-		rxBytes[i] = 0;
-	}
-	Simulator::Schedule(measurementInterval, &PrintThroughput, measurementTime + measurementInterval);
-}
-
 int main(int argc, char *argv[])
 {
 	clock_t begint, endt;
@@ -394,7 +395,6 @@ int main(int argc, char *argv[])
 		{
 			std::string key;
 			conf >> key;
-
 			//std::cout << conf.cur << "\n";
 
 			if (key.compare("ENABLE_QCN") == 0)
@@ -696,6 +696,37 @@ int main(int argc, char *argv[])
 			}else if (key.compare("ENABLE_MAGIC") == 0){
 				conf >> enable_magic;
 				std::cout << "ENABLE_MAGIC\t\t\t\t" << enable_magic << "\n";
+			}else if (key.compare("SKETCH_DEPTH") == 0){
+                conf >> sketch_depth;
+                std::cout << "SKETCH_DEPTH\t\t\t\t" << sketch_depth << '\n';
+            }else if (key.compare("SKETCH_WIDTH") == 0){
+                conf >> sketch_width;
+                std::cout << "SKETCH_WIDTH\t\t\t\t" << sketch_width << '\n';
+            }else if (key.compare("SKETCH_GRANULARITY") == 0){
+                conf >> sketch_granulatiry;
+                std::cout << "SKETCH_GRANULARITY\t\t\t\t" << sketch_granulatiry << '\n';
+            }else if (key.compare("SKETCH_WINDOW_SIZE") == 0){
+                conf >> sketch_window_size;
+                std::cout << "SKETCH_WINDOW_SIZE\t\t\t\t" << sketch_window_size << '\n'; 
+            }else if (key.compare("MAGIC_HH_MODE") == 0){
+                conf >> magic_hh_mode;
+                std::cout << "MAGIC_HH_MODE\t\t\t\t" << magic_hh_mode << '\n';
+            }else if (key.compare("MAGIC_OFFSET") == 0){
+                conf >> magic_offset;
+                std::cout << "MAGIC_OFFSET\t\t\t\t" << magic_offset << '\n';
+            }else if (key.compare("MAGIC_U") == 0){
+                conf >> magic_u;
+                std::cout << "MAGIC_U\t\t\t\t" << magic_u << '\n';
+            }else if (key.compare("QLEN_OUTPUT_FILE") == 0){
+                conf >> qlen_output_file;
+                std::cout << "QLEN_OUTPUT_FILE\t\t\t\t" << qlen_output_file << '\n';
+            }else if (key.compare("LOG_OUTPUT_FILE") == 0){
+				conf >> log_output_file;
+
+				// redirect output to log file
+				log_output.open(log_output_file, std::ofstream::out | std::ofstream::app);
+				std::cout.rdbuf(log_output.rdbuf());
+				std::cout << "LOG_OUTPUT_FILE\t\t\t\t" << log_output_file << '\n';
 			}
 			fflush(stdout);
 		}
@@ -716,6 +747,12 @@ int main(int argc, char *argv[])
 	Config::SetDefault("ns3::QbbNetDevice::DynamicThreshold", BooleanValue(dynamicth));
 
 	Config::SetDefault("ns3::BEgressQueue::EnableSketch", BooleanValue(enable_sketch));
+
+    Config::SetDefault("ns3::CmSketch::Depth", UintegerValue(sketch_depth));
+    Config::SetDefault("ns3::CmSketch::Width", UintegerValue(sketch_width));
+    Config::SetDefault("ns3::CmSketch::Granularity", UintegerValue(sketch_granulatiry));
+    Config::SetDefault("ns3::CmSketch::HeavyhitterMode", EnumValue(magic_hh_mode));
+    Config::SetDefault("ns3::CmSketch::u", DoubleValue(magic_u));
 
 	// set int_multi
 	IntHop::multi = int_multi;
@@ -930,14 +967,6 @@ int main(int argc, char *argv[])
 			rdmaHw->SetAttribute("DctcpRateAI", DataRateValue(DataRate(dctcp_rate_ai)));
 			rdmaHw->SetAttribute("EnableMagicControl", BooleanValue(enable_magic));
 			rdmaHw->SetPintSmplThresh(pint_prob);
-
-			if (i >= 4 && i <= 7)
-				rdmaHw->TraceConnectWithoutContext("Rx", MakeBoundCallback(TraceSinkRx, i - 4));
-
-			if (i >= 0 && i <= 3) {
-				rdmaHw->SetAttribute("SetForceEndTime", BooleanValue(true));
-				rdmaHw->SetAttribute("ForceEndTime", UintegerValue(2000 + 100 * (7 - i)));
-			}
 			// create and install RdmaDriver
 			Ptr<RdmaDriver> rdma = CreateObject<RdmaDriver>();
 			Ptr<Node> node = n.Get(i);
@@ -984,7 +1013,10 @@ int main(int argc, char *argv[])
 				maxRtt = rtt;
 		}
 	}
-	printf("maxRtt=%lu maxBdp=%lu\n", maxRtt, maxBdp);
+	// printf("maxRtt=%lu maxBdp=%lu\n", maxRtt, maxBdp);
+	std::cout << "maxRtt=" << maxRtt << " maxBdp=" << maxBdp << '\n';
+
+    Config::SetDefault("ns3::CmSketch::WindowSize", TimeValue(NanoSeconds(maxRtt * sketch_window_size)));
 
 	//
 	// setup switch CC
@@ -1061,27 +1093,16 @@ int main(int argc, char *argv[])
 	}
 
 	// schedule buffer monitor
-	FILE* qlen_output = fopen(qlen_mon_file.c_str(), "w");
-	Simulator::Schedule(NanoSeconds(qlen_mon_start), &monitor_buffer, qlen_output, &n);
+	// FILE* qlen_output = fopen(qlen_mon_file.c_str(), "w");
+	// Simulator::Schedule(NanoSeconds(qlen_mon_start), &monitor_buffer, qlen_output, &n);
 
-
-	// 输出各类 trace 信息
-	Time startTime = Seconds(2);
-	Simulator::Schedule(progressInterval, &PrintProgress);
-	Simulator::Schedule(startTime, &InitializeCounters);
-	Simulator::Schedule(startTime + measurementInterval, &PrintThroughput, measurementInterval);
-
-	std::string output_folder = "./experiment-results/hpcc/fairness/magic/";
-	for (std::size_t i = 0; i < 4; ++i)
-	{
-		std::string filename = output_folder + "flow-thru-" + std::to_string(i) + ".dat";
-		rxThru[i].open(filename, std::ios::out);
-		rxThru[i] << "#Time(s)" << "\t" << "Thru(Gbps)" << std::endl;
-	}
-
+    // schedule buffer queue length monitor for magic
+    FILE* qlen_output = fopen(qlen_output_file.c_str(), "w");
+	Simulator::Schedule(NanoSeconds(qlen_mon_start), &monitor_qlen, qlen_output, &n);
 	//
 	// Now, do the actual simulation.
 	//
+	Simulator::Schedule(progressInterval, &PrintProgress);
 	std::cout << "Running Simulation.\n";
 	fflush(stdout);
 	NS_LOG_INFO("Run Simulation.");

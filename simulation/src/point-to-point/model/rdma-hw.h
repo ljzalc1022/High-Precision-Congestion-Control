@@ -47,6 +47,8 @@ public:
 	TracedCallback<Ptr<Packet> > m_rxTrace;
 	TracedCallback<Ptr<Packet> > m_txTrace;
 	bool m_traceRate{false};
+	bool m_hasForceEndTime{false};
+	uint32_t m_forceEndTime{0};
 
 	// qp complete callback
 	typedef Callback<void, Ptr<RdmaQueuePair> > QpCompleteCallback;

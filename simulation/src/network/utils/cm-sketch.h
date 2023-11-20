@@ -8,47 +8,64 @@
 
 namespace ns3 {
 
-class CmSketch {
+class CmSketch : public Object{
 public:
-    uint64_t *** counter_split;
-    uint64_t ** counter;
-    uint32_t width, depth;
-    uint64_t total_bytes;
-    uint64_t * split_bytes;
-    uint32_t m_card; // cardinality
-    uint32_t m_offset{100};
-    // std::map<uint32_t, uint32_t> distribution;
+    // Rolling Window
+    uint32_t m_granularity;
+    Time     m_windowSize;      // window size (set to 0.5 base RTT by default)
+    uint32_t m_depth, m_width;
+
+    uint32_t m_card;    // cardinality
+    uint64_t m_rate;    // data rate of the Net Device on which the sketch structure resides
+                        // (only used in HHM_DYNAMIC_HPCC)
+
+    enum heavyhitterMode_t {
+        HHM_NAIVE,              // hh_thresh = total / card - fixed_offset
+        HHM_DYNAMIC,            // hh_thresh = m_u * total / (card - 1)
+        HHM_DYNAMIC_HPCC        // hh_thresh = total / card - dynamic_offset
+    };
+    uint32_t m_heavyhitterMode;
+
+    // Fixed offset
+    uint64_t m_offset;
+
+    // Dynamic offset params for universal CC algos (hjt & ljz's idea)
+    int32_t  m_qdiff;    // max(0, q-q_t)
+    int32_t  m_qt;       // target queue length
+    double   m_u;  
+
+    // Dynamic offset for HPCC only (snow's idea)
+    double   m_miu;
+    double   m_eta;
 
 public:
-    CmSketch (uint32_t d, uint32_t w);
+    static TypeId GetTypeId(void);
     CmSketch ();
     ~CmSketch ();
-
-    /**
-     * \brief update the counter for each flow
-     */
+    void Init();
     void UpdateCounter (Ptr<Packet> item);
-    /**
-     * \brief update the txBytes
-    */
     void UpdateTxBytes (Ptr<Packet> item);
-
     bool GetHeavyHitters (Ptr<Packet> item);
     void ClearWindow ();
     uint32_t GetCard ();
 
-private:
-    const uint32_t granularity = 5;
-    Time m_windowSize{NanoSeconds(120960 / 2)}; // window size = 0.5 base RTT
-    
-    uint32_t pointer;
+    void setRate(uint64_t rate);
+    void setQdiff(int32_t q);
 
-    /**
-     * \brief update the flow distribution
-     * \param old_v the old size of the flow
-     * \param new_v the new size of the flow
-    */
-    void UpdateDistribution(uint32_t old_v, uint32_t new_v);
+private:
+    // Measured when a packet is enqueued
+    uint64_t *** counter_split;     
+    uint64_t ** counter;
+
+    // Measured when a packet is dequeued(transmitted)
+    uint64_t total_txbytes;           // # bytes transmitted
+    uint64_t * split_txbytes;         // # bytes transmitted in each window
+
+    uint32_t pointer;   // index of the currently using subwindow
+
+    Time m_lastWindowStartTime;
+
+    void UpdateCardinality(uint32_t old_v, uint32_t new_v);
     
     uint32_t Hash(Ptr<Packet> item, uint32_t permutation) const;
     uint32_t HashFunction(uint32_t sip, uint32_t dip, uint16_t sport, uint16_t dport, uint16_t pg, uint32_t permutation) const;

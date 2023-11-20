@@ -24,6 +24,8 @@ def build(bld):
         'model/tag-buffer.cc',
         'model/trailer.cc',
         'utils/address-utils.cc',
+        'utils/bigflow-tag.cc',
+        'utils/cm-sketch.cc',
         'utils/data-rate.cc',
         'utils/drop-tail-queue.cc',
         'utils/error-model.cc',
@@ -60,8 +62,6 @@ def build(bld):
         'utils/leaky-bucket.cc',
 		'utils/custom-header.cc',
 		'utils/int-header.cc',
-        'utils/bigflow-tag.cc',
-        'utils/cm-sketch.cc'
         ]
 
     network_test = bld.create_ns3_module_test_library('network')
@@ -101,6 +101,8 @@ def build(bld):
         'model/tag-buffer.h',
         'model/trailer.h',
         'utils/address-utils.h',
+        'utils/bigflow-tag.h',
+        'utils/cm-sketch.h',
         'utils/data-rate.h',
         'utils/drop-tail-queue.h',
         'utils/error-model.h',
@@ -141,8 +143,6 @@ def build(bld):
         'utils/leaky-bucket.h',
 		'utils/custom-header.h',
 		'utils/int-header.h',
-        'utils/bigflow-tag.h',
-        'utils/cm-sketch.h'
         ]
 
     if (bld.env['ENABLE_EXAMPLES']):

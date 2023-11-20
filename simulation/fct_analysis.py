@@ -8,8 +8,8 @@ def Average(a):
     return sum / len(a)
 
 import sys
-fct_f = open("./experiment-results/hpcc/fat/25_50load/magic_5_100_0.1s/fct.txt")
-out_f = open("./experiment-results/hpcc/fat/25_50load/magic_5_100_0.1s/fct_ana.txt", "w")
+fct_f = open("./experiment-results/hpcc/fat/25_50load/magic_dy_ljzhjt_0.1s/fct.txt")
+out_f = open("./experiment-results/hpcc/fat/25_50load/magic_dy_ljzhjt_0.1s/fct_ana.txt", "w")
 
 N = 3
 partition_name = ["100KB", "1MB", "10MB"]

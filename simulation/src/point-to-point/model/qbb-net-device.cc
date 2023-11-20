@@ -486,6 +486,7 @@ namespace ns3 {
 	void QbbNetDevice::SetQueue(Ptr<BEgressQueue> q){
 		NS_LOG_FUNCTION(this << q);
 		m_queue = q;
+		m_queue->SetRate(this->GetDataRate().GetBitRate());
 	}
 
 	Ptr<BEgressQueue> QbbNetDevice::GetQueue(){

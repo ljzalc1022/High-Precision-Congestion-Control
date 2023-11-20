@@ -76,13 +76,6 @@ namespace ns3 {
 	BEgressQueue::~BEgressQueue()
 	{
 		NS_LOG_FUNCTION_NOARGS();
-		if (m_enableSketch) 
-		{
-			if (m_sketch != nullptr)
-			{
-				delete m_sketch;
-			}
-		}
 	}
 
 	bool
@@ -92,15 +85,22 @@ namespace ns3 {
 
 		if (m_bytesInQueueTotal + p->GetSize() < m_maxBytes)  //infinite queue
 		{
+			// MAGIC: Insert packets into the sketch
 			if (m_enableSketch) 
 			{
+				// Update sketch if & only if the packet is a data packet
 				if (IsDataPacket(p))
 				{
+					// Create a new sketch for the BEgressQueue if there doesn't exist one
 					if (m_sketch == nullptr) 
 					{
-						m_sketch = new CmSketch(2, 65537);
+						// m_sketch = new CmSketch();
+						m_sketch = CreateObject<CmSketch>();
+						m_sketch->Init();
+						m_sketch->setRate(m_rate);
 					}
 					m_sketch->UpdateCounter(p);
+					m_sketch->setQdiff(m_bytesInQueueTotal);
 					// std::cout << "packet inserted" << std::endl;
 					if (CheckCongestion())
 					{
@@ -291,6 +291,12 @@ namespace ns3 {
 		return m_qlast;
 	}
 
+	void
+		BEgressQueue::SetRate(uint64_t rate)
+	{
+		m_rate = rate;
+	}
+
 	bool 
 		BEgressQueue::CheckCongestion() const
 	{
@@ -301,13 +307,13 @@ namespace ns3 {
 	bool
 		BEgressQueue::IsDataPacket(Ptr<Packet> p) const
 	{
-		// don't need to parse L4 header and INT header
+		// Peek into the packet header to see whether the L3 prot is UDP,
+		// Therefore, we don't need to parse L4 header and INT header
 		CustomHeader ch(CustomHeader::L2_Header | CustomHeader::L3_Header);
 		ch.getInt = 0;
 		p->PeekHeader(ch);
-		if (ch.l3Prot == 0x11) // udp, which means the packet is a data packet
-			return true;
-		else
-			return false;
+
+		// Return true if the L3 prot of the packet is UDP
+		return (ch.l3Prot == 0x11);
 	}
 }

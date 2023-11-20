@@ -337,7 +337,7 @@ uint64_t get_nic_rate(NodeContainer &n){
 			return DynamicCast<QbbNetDevice>(n.Get(i)->GetDevice(1))->GetDataRate().GetBitRate();
 }
 
-const Time progressInterval = MilliSeconds(10);
+const Time progressInterval = NanoSeconds(10000);
 void PrintProgress()
 {
     std::cout << "Progress to " << std::fixed
@@ -346,11 +346,11 @@ void PrintProgress()
 }
 
 // Measure throughput
-uint64_t rxBytes[4];
-std::ofstream rxThru[4];
+uint64_t rxBytes[5];
+std::ofstream rxThru[5];
 void InitializeCounters()
 {
-	for (std::size_t i = 0; i < 4; ++i)
+	for (std::size_t i = 0; i < 5; ++i)
 	{
 		rxBytes[i] = 0;
 	}
@@ -364,7 +364,7 @@ void TraceSinkRx(std::size_t index, Ptr<Packet> p)
 Time measurementInterval = NanoSeconds(12000);
 void PrintThroughput(Time measurementTime)
 {
-	for (std::size_t i = 0; i < 4; ++i)
+	for (std::size_t i = 0; i < 5; ++i)
 	{
 		rxThru[i] << std::fixed << measurementTime.GetSeconds() << " "
 				  << (rxBytes[i] * 8) / measurementInterval.GetSeconds() / 1e9 << std::endl;
@@ -931,13 +931,9 @@ int main(int argc, char *argv[])
 			rdmaHw->SetAttribute("EnableMagicControl", BooleanValue(enable_magic));
 			rdmaHw->SetPintSmplThresh(pint_prob);
 
-			if (i >= 4 && i <= 7)
-				rdmaHw->TraceConnectWithoutContext("Rx", MakeBoundCallback(TraceSinkRx, i - 4));
+			if (i >= 5 && i <= 9)
+				rdmaHw->TraceConnectWithoutContext("Rx", MakeBoundCallback(TraceSinkRx, i - 5));
 
-			if (i >= 0 && i <= 3) {
-				rdmaHw->SetAttribute("SetForceEndTime", BooleanValue(true));
-				rdmaHw->SetAttribute("ForceEndTime", UintegerValue(2000 + 100 * (7 - i)));
-			}
 			// create and install RdmaDriver
 			Ptr<RdmaDriver> rdma = CreateObject<RdmaDriver>();
 			Ptr<Node> node = n.Get(i);
@@ -1067,12 +1063,12 @@ int main(int argc, char *argv[])
 
 	// 输出各类 trace 信息
 	Time startTime = Seconds(2);
-	Simulator::Schedule(progressInterval, &PrintProgress);
+	// Simulator::Schedule(progressInterval, &PrintProgress);
 	Simulator::Schedule(startTime, &InitializeCounters);
 	Simulator::Schedule(startTime + measurementInterval, &PrintThroughput, measurementInterval);
 
-	std::string output_folder = "./experiment-results/hpcc/fairness/magic/";
-	for (std::size_t i = 0; i < 4; ++i)
+	std::string output_folder = "./experiment-results/hpcc/conv/dy_ljzhjt/";
+	for (std::size_t i = 0; i < 5; ++i)
 	{
 		std::string filename = output_folder + "flow-thru-" + std::to_string(i) + ".dat";
 		rxThru[i].open(filename, std::ios::out);

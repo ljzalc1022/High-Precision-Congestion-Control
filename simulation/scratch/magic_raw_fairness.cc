@@ -1071,7 +1071,7 @@ int main(int argc, char *argv[])
 	Simulator::Schedule(startTime, &InitializeCounters);
 	Simulator::Schedule(startTime + measurementInterval, &PrintThroughput, measurementInterval);
 
-	std::string output_folder = "./experiment-results/hpcc/fairness/magic/";
+	std::string output_folder = "./experiment-results/hpcc/fairness/baseline/";
 	for (std::size_t i = 0; i < 4; ++i)
 	{
 		std::string filename = output_folder + "flow-thru-" + std::to_string(i) + ".dat";

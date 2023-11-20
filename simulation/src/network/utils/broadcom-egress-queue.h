@@ -44,6 +44,7 @@ namespace ns3 {
 		uint32_t GetNBytes(uint32_t qIndex) const;
 		uint32_t GetNBytesTotal() const;
 		uint32_t GetLastQueue();
+		void SetRate(uint64_t rate);
 
 		TracedCallback<Ptr<const Packet>, uint32_t> m_traceBeqEnqueue;
 		TracedCallback<Ptr<const Packet>, uint32_t> m_traceBeqDequeue;
@@ -63,9 +64,10 @@ namespace ns3 {
 		std::vector<Ptr<Queue> > m_queues; // uc queues
 
 		bool m_enableSketch;
-		CmSketch* m_sketch;
+		Ptr<CmSketch> m_sketch;
 		bool CheckCongestion() const;
 		bool IsDataPacket(Ptr<Packet> p) const;
+		uint64_t m_rate;
 	};
 
 } // namespace ns3

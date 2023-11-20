@@ -189,7 +189,17 @@ TypeId RdmaHw::GetTypeId (void)
 				"Trace the change of rate",
 				BooleanValue(false),
 				MakeBooleanAccessor(&RdmaHw::m_traceRate),
-				MakeBooleanChecker());
+				MakeBooleanChecker())
+		.AddAttribute("SetForceEndTime",
+				"Set a time when the rdma flow will be forced to shut down",
+				BooleanValue(false),
+				MakeBooleanAccessor(&RdmaHw::m_hasForceEndTime),
+				MakeBooleanChecker())
+		.AddAttribute("ForceEndTime",
+				"Force the rdma flow to end at the time",
+				UintegerValue(2000),   // millisecond
+				MakeUintegerAccessor(&RdmaHw::m_forceEndTime),
+				MakeUintegerChecker<uint32_t>());
 	return tid;
 }
 
@@ -425,7 +435,7 @@ int RdmaHw::ReceiveAck(Ptr<Packet> p, CustomHeader &ch){
 			uint32_t goback_seq = seq / m_chunk * m_chunk;
 			qp->Acknowledge(goback_seq);
 		}
-		if (qp->IsFinished()){
+		if (qp->IsFinished() || (m_hasForceEndTime && Simulator::Now().GetMilliSeconds() > m_forceEndTime)){
 			QpComplete(qp);
 		}
 	}
