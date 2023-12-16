@@ -3,5 +3,5 @@ simulation/build
 simulation/.lock-waf_linux2_build
 simulation/mix/mix.tr
 simulation/experiment-results
-simulation/mix
 simulation/log.txt
+simulation/*.txt
