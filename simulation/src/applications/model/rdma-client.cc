@@ -34,6 +34,7 @@
 #include "rdma-client.h"
 #include "ns3/seq-ts-header.h"
 #include <ns3/rdma-driver.h>
+#include "ns3/double.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -87,6 +88,11 @@ RdmaClient::GetTypeId (void)
                    UintegerValue (0),
                    MakeUintegerAccessor (&RdmaClient::m_baseRtt),
                    MakeUintegerChecker<uint64_t> ())
+    .AddAttribute ("EndTime",
+                   "How soon the rdma-client will end after started",
+                   DoubleValue (-1),
+                   MakeDoubleAccessor(&RdmaClient::m_endTime),
+                   MakeDoubleChecker<double>());
   ;
   return tid;
 }
@@ -138,7 +144,7 @@ void RdmaClient::StartApplication (void)
   // get RDMA driver and add up queue pair
   Ptr<Node> node = GetNode();
   Ptr<RdmaDriver> rdma = node->GetObject<RdmaDriver>();
-  rdma->AddQueuePair(m_size, m_pg, m_sip, m_dip, m_sport, m_dport, m_win, m_baseRtt, MakeCallback(&RdmaClient::Finish, this));
+  rdma->AddQueuePair(m_size, m_pg, m_sip, m_dip, m_sport, m_dport, m_win, m_baseRtt, m_endTime, MakeCallback(&RdmaClient::Finish, this));
 }
 
 void RdmaClient::StopApplication ()

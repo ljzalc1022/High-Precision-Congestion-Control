@@ -925,3 +925,1346 @@ Progress to 2.470000 seconds simulation time
 Progress to 2.480000 seconds simulation time
 Progress to 2.490000 seconds simulation time
 26749.597586
+LOG_OUTPUT_FILE				log.txt
+ENABLE_QCN			Yes
+USE_DYNAMIC_PFC_THRESHOLD	Yes
+PACKET_PAYLOAD_SIZE		1000
+TOPOLOGY_FILE			mix/guarded/topology/2G_1_10G_45_35.txt
+FLOW_FILE			mix/guarded/flow_distribution/big_45_35_small_1.txt
+TRACE_FILE			mix/guarded/trace.txt
+TRACE_OUTPUT_FILE		mix/guarded/mix.tr
+FCT_OUTPUT_FILE		experiment-results/hpcc/guarded/big_45_35_small_1/dynamic_u0.92/fct.txt
+PFC_OUTPUT_FILE				mix/guarded/pfc.txt
+SIMULATOR_STOP_TIME		6.5
+CC_MODE		3
+ALPHA_RESUME_INTERVAL		1
+RATE_DECREASE_INTERVAL		4
+CLAMP_TARGET_RATE		No
+RP_TIMER			900
+EWMA_GAIN			0.00390625
+FAST_RECOVERY_TIMES		1
+RATE_AI				50Mb/s
+RATE_HAI			100Mb/s
+MIN_RATE		100Mb/s
+DCTCP_RATE_AI				1000Mb/s
+ERROR_RATE_PER_LINK		0
+L2_CHUNK_SIZE			4000
+L2_ACK_INTERVAL			1
+L2_BACK_TO_ZERO			No
+HAS_WIN		1
+GLOBAL_T		1
+VAR_WIN		1
+FAST_REACT		1
+U_TARGET		0.95
+MI_THRESH		0
+INT_MULTI				1
+MULTI_RATE				0
+SAMPLE_FEEDBACK				0
+PINT_LOG_BASE				1.05
+PINT_PROB				1
+RATE_BOUND		1
+ACK_HIGH_PRIO		0
+LINK_DOWN				0 0 0
+ENABLE_TRACE				1
+KMAX_MAP				 2000000000 60 10000000000 150 25000000000 400 50000000000 200 100000000000 400
+KMIN_MAP				 2000000000 20 10000000000 50 25000000000 100 50000000000 50 100000000000 100
+PMAX_MAP				 2000000000 1 10000000000 1 25000000000 1 50000000000 1 100000000000 1
+BUFFER_SIZE				32
+QLEN_MON_FILE				mix/guarded/qlen_mon.txt
+QLEN_MON_START				2000000000
+QLEN_MON_END				2001500000
+ENABLE_SKETCH				1
+ENABLE_MAGIC				1
+SKETCH_DEPTH				2
+SKETCH_WIDTH				65537
+SKETCH_GRANULARITY				5
+SKETCH_WINDOW_SIZE				0.5
+MAGIC_HH_MODE				1
+MAGIC_U				0.92
+SMALL_FLOW_SENDER				0
+SMALL_FLOW_RECEIVER				46
+OUTPUT_FOLDER				experiment-results/hpcc/guarded/big_45_35_small_1/dynamic_u0.92/
+maxRtt=68080 maxBdp=77100
+Running Simulation.
+Progress to 2.000000 seconds simulation time
+Progress to 2.010000 seconds simulation time
+Progress to 2.020000 seconds simulation time
+Progress to 2.030000 seconds simulation time
+Progress to 2.040000 seconds simulation time
+Progress to 2.050000 seconds simulation time
+Progress to 2.060000 seconds simulation time
+Progress to 2.070000 seconds simulation time
+Progress to 2.080000 seconds simulation time
+Progress to 2.090000 seconds simulation time
+Progress to 2.100000 seconds simulation time
+Progress to 2.110000 seconds simulation time
+Progress to 2.120000 seconds simulation time
+Progress to 2.130000 seconds simulation time
+Progress to 2.140000 seconds simulation time
+Progress to 2.150000 seconds simulation time
+Progress to 2.160000 seconds simulation time
+Progress to 2.170000 seconds simulation time
+Progress to 2.180000 seconds simulation time
+Progress to 2.190000 seconds simulation time
+Progress to 2.200000 seconds simulation time
+Progress to 2.210000 seconds simulation time
+Progress to 2.220000 seconds simulation time
+Progress to 2.230000 seconds simulation time
+Progress to 2.240000 seconds simulation time
+Progress to 2.250000 seconds simulation time
+Progress to 2.260000 seconds simulation time
+Progress to 2.270000 seconds simulation time
+Progress to 2.280000 seconds simulation time
+Progress to 2.290000 seconds simulation time
+Progress to 2.300000 seconds simulation time
+Progress to 2.310000 seconds simulation time
+Progress to 2.320000 seconds simulation time
+Progress to 2.330000 seconds simulation time
+Progress to 2.340000 seconds simulation time
+Progress to 2.350000 seconds simulation time
+Progress to 2.360000 seconds simulation time
+Progress to 2.370000 seconds simulation time
+Progress to 2.380000 seconds simulation time
+Progress to 2.390000 seconds simulation time
+Progress to 2.400000 seconds simulation time
+Progress to 2.410000 seconds simulation time
+Progress to 2.420000 seconds simulation time
+Progress to 2.430000 seconds simulation time
+Progress to 2.440000 seconds simulation time
+Progress to 2.450000 seconds simulation time
+Progress to 2.460000 seconds simulation time
+Progress to 2.470000 seconds simulation time
+Progress to 2.480000 seconds simulation time
+Progress to 2.490000 seconds simulation time
+Progress to 2.500000 seconds simulation time
+Progress to 2.510000 seconds simulation time
+Progress to 2.520000 seconds simulation time
+Progress to 2.530000 seconds simulation time
+Progress to 2.540000 seconds simulation time
+Progress to 2.550000 seconds simulation time
+Progress to 2.560000 seconds simulation time
+Progress to 2.570000 seconds simulation time
+Progress to 2.580000 seconds simulation time
+Progress to 2.590000 seconds simulation time
+Progress to 2.600000 seconds simulation time
+Progress to 2.610000 seconds simulation time
+Progress to 2.620000 seconds simulation time
+Progress to 2.630000 seconds simulation time
+Progress to 2.640000 seconds simulation time
+Progress to 2.650000 seconds simulation time
+Progress to 2.660000 seconds simulation time
+Progress to 2.670000 seconds simulation time
+Progress to 2.680000 seconds simulation time
+Progress to 2.690000 seconds simulation time
+Progress to 2.700000 seconds simulation time
+Progress to 2.710000 seconds simulation time
+Progress to 2.720000 seconds simulation time
+Progress to 2.730000 seconds simulation time
+Progress to 2.740000 seconds simulation time
+Progress to 2.750000 seconds simulation time
+Progress to 2.760000 seconds simulation time
+Progress to 2.770000 seconds simulation time
+Progress to 2.780000 seconds simulation time
+Progress to 2.790000 seconds simulation time
+Progress to 2.800000 seconds simulation time
+Progress to 2.810000 seconds simulation time
+Progress to 2.820000 seconds simulation time
+Progress to 2.830000 seconds simulation time
+Progress to 2.840000 seconds simulation time
+Progress to 2.850000 seconds simulation time
+Progress to 2.860000 seconds simulation time
+Progress to 2.870000 seconds simulation time
+Progress to 2.880000 seconds simulation time
+Progress to 2.890000 seconds simulation time
+Progress to 2.900000 seconds simulation time
+Progress to 2.910000 seconds simulation time
+Progress to 2.920000 seconds simulation time
+Progress to 2.930000 seconds simulation time
+Progress to 2.940000 seconds simulation time
+Progress to 2.950000 seconds simulation time
+Progress to 2.960000 seconds simulation time
+Progress to 2.970000 seconds simulation time
+Progress to 2.980000 seconds simulation time
+Progress to 2.990000 seconds simulation time
+Progress to 3.000000 seconds simulation time
+Progress to 3.010000 seconds simulation time
+Progress to 3.020000 seconds simulation time
+Progress to 3.030000 seconds simulation time
+Progress to 3.040000 seconds simulation time
+Progress to 3.050000 seconds simulation time
+Progress to 3.060000 seconds simulation time
+Progress to 3.070000 seconds simulation time
+Progress to 3.080000 seconds simulation time
+Progress to 3.090000 seconds simulation time
+Progress to 3.100000 seconds simulation time
+Progress to 3.110000 seconds simulation time
+Progress to 3.120000 seconds simulation time
+Progress to 3.130000 seconds simulation time
+Progress to 3.140000 seconds simulation time
+Progress to 3.150000 seconds simulation time
+Progress to 3.160000 seconds simulation time
+Progress to 3.170000 seconds simulation time
+Progress to 3.180000 seconds simulation time
+Progress to 3.190000 seconds simulation time
+Progress to 3.200000 seconds simulation time
+Progress to 3.210000 seconds simulation time
+Progress to 3.220000 seconds simulation time
+Progress to 3.230000 seconds simulation time
+Progress to 3.240000 seconds simulation time
+Progress to 3.250000 seconds simulation time
+Progress to 3.260000 seconds simulation time
+Progress to 3.270000 seconds simulation time
+Progress to 3.280000 seconds simulation time
+Progress to 3.290000 seconds simulation time
+Progress to 3.300000 seconds simulation time
+Progress to 3.310000 seconds simulation time
+Progress to 3.320000 seconds simulation time
+Progress to 3.330000 seconds simulation time
+Progress to 3.340000 seconds simulation time
+Progress to 3.350000 seconds simulation time
+Progress to 3.360000 seconds simulation time
+Progress to 3.370000 seconds simulation time
+Progress to 3.380000 seconds simulation time
+Progress to 3.390000 seconds simulation time
+Progress to 3.400000 seconds simulation time
+Progress to 3.410000 seconds simulation time
+Progress to 3.420000 seconds simulation time
+Progress to 3.430000 seconds simulation time
+Progress to 3.440000 seconds simulation time
+Progress to 3.450000 seconds simulation time
+Progress to 3.460000 seconds simulation time
+Progress to 3.470000 seconds simulation time
+Progress to 3.480000 seconds simulation time
+Progress to 3.490000 seconds simulation time
+Progress to 3.500000 seconds simulation time
+Progress to 3.510000 seconds simulation time
+Progress to 3.520000 seconds simulation time
+Progress to 3.530000 seconds simulation time
+Progress to 3.540000 seconds simulation time
+Progress to 3.550000 seconds simulation time
+Progress to 3.560000 seconds simulation time
+Progress to 3.570000 seconds simulation time
+Progress to 3.580000 seconds simulation time
+Progress to 3.590000 seconds simulation time
+Progress to 3.600000 seconds simulation time
+Progress to 3.610000 seconds simulation time
+Progress to 3.620000 seconds simulation time
+Progress to 3.630000 seconds simulation time
+Progress to 3.640000 seconds simulation time
+Progress to 3.650000 seconds simulation time
+Progress to 3.660000 seconds simulation time
+Progress to 3.670000 seconds simulation time
+Progress to 3.680000 seconds simulation time
+Progress to 3.690000 seconds simulation time
+Progress to 3.700000 seconds simulation time
+Progress to 3.710000 seconds simulation time
+Progress to 3.720000 seconds simulation time
+Progress to 3.730000 seconds simulation time
+Progress to 3.740000 seconds simulation time
+Progress to 3.750000 seconds simulation time
+Progress to 3.760000 seconds simulation time
+Progress to 3.770000 seconds simulation time
+Progress to 3.780000 seconds simulation time
+Progress to 3.790000 seconds simulation time
+Progress to 3.800000 seconds simulation time
+Progress to 3.810000 seconds simulation time
+Progress to 3.820000 seconds simulation time
+Progress to 3.830000 seconds simulation time
+Progress to 3.840000 seconds simulation time
+Progress to 3.850000 seconds simulation time
+Progress to 3.860000 seconds simulation time
+Progress to 3.870000 seconds simulation time
+Progress to 3.880000 seconds simulation time
+Progress to 3.890000 seconds simulation time
+Progress to 3.900000 seconds simulation time
+Progress to 3.910000 seconds simulation time
+Progress to 3.920000 seconds simulation time
+Progress to 3.930000 seconds simulation time
+Progress to 3.940000 seconds simulation time
+Progress to 3.950000 seconds simulation time
+Progress to 3.960000 seconds simulation time
+Progress to 3.970000 seconds simulation time
+Progress to 3.980000 seconds simulation time
+Progress to 3.990000 seconds simulation time
+Progress to 4.000000 seconds simulation time
+Progress to 4.010000 seconds simulation time
+Progress to 4.020000 seconds simulation time
+Progress to 4.030000 seconds simulation time
+Progress to 4.040000 seconds simulation time
+Progress to 4.050000 seconds simulation time
+Progress to 4.060000 seconds simulation time
+Progress to 4.070000 seconds simulation time
+Progress to 4.080000 seconds simulation time
+Progress to 4.090000 seconds simulation time
+Progress to 4.100000 seconds simulation time
+Progress to 4.110000 seconds simulation time
+Progress to 4.120000 seconds simulation time
+Progress to 4.130000 seconds simulation time
+Progress to 4.140000 seconds simulation time
+Progress to 4.150000 seconds simulation time
+Progress to 4.160000 seconds simulation time
+Progress to 4.170000 seconds simulation time
+Progress to 4.180000 seconds simulation time
+Progress to 4.190000 seconds simulation time
+Progress to 4.200000 seconds simulation time
+Progress to 4.210000 seconds simulation time
+Progress to 4.220000 seconds simulation time
+Progress to 4.230000 seconds simulation time
+Progress to 4.240000 seconds simulation time
+Progress to 4.250000 seconds simulation time
+Progress to 4.260000 seconds simulation time
+Progress to 4.270000 seconds simulation time
+Progress to 4.280000 seconds simulation time
+Progress to 4.290000 seconds simulation time
+Progress to 4.300000 seconds simulation time
+Progress to 4.310000 seconds simulation time
+Progress to 4.320000 seconds simulation time
+Progress to 4.330000 seconds simulation time
+Progress to 4.340000 seconds simulation time
+Progress to 4.350000 seconds simulation time
+Progress to 4.360000 seconds simulation time
+Progress to 4.370000 seconds simulation time
+Progress to 4.380000 seconds simulation time
+Progress to 4.390000 seconds simulation time
+Progress to 4.400000 seconds simulation time
+Progress to 4.410000 seconds simulation time
+Progress to 4.420000 seconds simulation time
+Progress to 4.430000 seconds simulation time
+Progress to 4.440000 seconds simulation time
+Progress to 4.450000 seconds simulation time
+Progress to 4.460000 seconds simulation time
+Progress to 4.470000 seconds simulation time
+Progress to 4.480000 seconds simulation time
+Progress to 4.490000 seconds simulation time
+Progress to 4.500000 seconds simulation time
+Progress to 4.510000 seconds simulation time
+Progress to 4.520000 seconds simulation time
+Progress to 4.530000 seconds simulation time
+Progress to 4.540000 seconds simulation time
+Progress to 4.550000 seconds simulation time
+Progress to 4.560000 seconds simulation time
+Progress to 4.570000 seconds simulation time
+Progress to 4.580000 seconds simulation time
+Progress to 4.590000 seconds simulation time
+Progress to 4.600000 seconds simulation time
+Progress to 4.610000 seconds simulation time
+Progress to 4.620000 seconds simulation time
+Progress to 4.630000 seconds simulation time
+Progress to 4.640000 seconds simulation time
+Progress to 4.650000 seconds simulation time
+Progress to 4.660000 seconds simulation time
+Progress to 4.670000 seconds simulation time
+Progress to 4.680000 seconds simulation time
+Progress to 4.690000 seconds simulation time
+Progress to 4.700000 seconds simulation time
+Progress to 4.710000 seconds simulation time
+Progress to 4.720000 seconds simulation time
+Progress to 4.730000 seconds simulation time
+Progress to 4.740000 seconds simulation time
+Progress to 4.750000 seconds simulation time
+Progress to 4.760000 seconds simulation time
+Progress to 4.770000 seconds simulation time
+Progress to 4.780000 seconds simulation time
+Progress to 4.790000 seconds simulation time
+Progress to 4.800000 seconds simulation time
+Progress to 4.810000 seconds simulation time
+Progress to 4.820000 seconds simulation time
+Progress to 4.830000 seconds simulation time
+Progress to 4.840000 seconds simulation time
+Progress to 4.850000 seconds simulation time
+Progress to 4.860000 seconds simulation time
+Progress to 4.870000 seconds simulation time
+Progress to 4.880000 seconds simulation time
+Progress to 4.890000 seconds simulation time
+Progress to 4.900000 seconds simulation time
+Progress to 4.910000 seconds simulation time
+Progress to 4.920000 seconds simulation time
+Progress to 4.930000 seconds simulation time
+Progress to 4.940000 seconds simulation time
+Progress to 4.950000 seconds simulation time
+Progress to 4.960000 seconds simulation time
+Progress to 4.970000 seconds simulation time
+Progress to 4.980000 seconds simulation time
+Progress to 4.990000 seconds simulation time
+Progress to 5.000000 seconds simulation time
+Progress to 5.010000 seconds simulation time
+Progress to 5.020000 seconds simulation time
+Progress to 5.030000 seconds simulation time
+Progress to 5.040000 seconds simulation time
+Progress to 5.050000 seconds simulation time
+Progress to 5.060000 seconds simulation time
+Progress to 5.070000 seconds simulation time
+Progress to 5.080000 seconds simulation time
+Progress to 5.090000 seconds simulation time
+Progress to 5.100000 seconds simulation time
+Progress to 5.110000 seconds simulation time
+Progress to 5.120000 seconds simulation time
+Progress to 5.130000 seconds simulation time
+Progress to 5.140000 seconds simulation time
+Progress to 5.150000 seconds simulation time
+Progress to 5.160000 seconds simulation time
+Progress to 5.170000 seconds simulation time
+Progress to 5.180000 seconds simulation time
+Progress to 5.190000 seconds simulation time
+Progress to 5.200000 seconds simulation time
+Progress to 5.210000 seconds simulation time
+Progress to 5.220000 seconds simulation time
+Progress to 5.230000 seconds simulation time
+Progress to 5.240000 seconds simulation time
+Progress to 5.250000 seconds simulation time
+Progress to 5.260000 seconds simulation time
+Progress to 5.270000 seconds simulation time
+Progress to 5.280000 seconds simulation time
+Progress to 5.290000 seconds simulation time
+Progress to 5.300000 seconds simulation time
+Progress to 5.310000 seconds simulation time
+Progress to 5.320000 seconds simulation time
+Progress to 5.330000 seconds simulation time
+Progress to 5.340000 seconds simulation time
+Progress to 5.350000 seconds simulation time
+Progress to 5.360000 seconds simulation time
+Progress to 5.370000 seconds simulation time
+Progress to 5.380000 seconds simulation time
+Progress to 5.390000 seconds simulation time
+Progress to 5.400000 seconds simulation time
+Progress to 5.410000 seconds simulation time
+Progress to 5.420000 seconds simulation time
+Progress to 5.430000 seconds simulation time
+Progress to 5.440000 seconds simulation time
+Progress to 5.450000 seconds simulation time
+Progress to 5.460000 seconds simulation time
+Progress to 5.470000 seconds simulation time
+Progress to 5.480000 seconds simulation time
+Progress to 5.490000 seconds simulation time
+Progress to 5.500000 seconds simulation time
+Progress to 5.510000 seconds simulation time
+Progress to 5.520000 seconds simulation time
+Progress to 5.530000 seconds simulation time
+Progress to 5.540000 seconds simulation time
+Progress to 5.550000 seconds simulation time
+Progress to 5.560000 seconds simulation time
+Progress to 5.570000 seconds simulation time
+Progress to 5.580000 seconds simulation time
+Progress to 5.590000 seconds simulation time
+Progress to 5.600000 seconds simulation time
+Progress to 5.610000 seconds simulation time
+Progress to 5.620000 seconds simulation time
+Progress to 5.630000 seconds simulation time
+Progress to 5.640000 seconds simulation time
+Progress to 5.650000 seconds simulation time
+Progress to 5.660000 seconds simulation time
+Progress to 5.670000 seconds simulation time
+Progress to 5.680000 seconds simulation time
+Progress to 5.690000 seconds simulation time
+Progress to 5.700000 seconds simulation time
+Progress to 5.710000 seconds simulation time
+Progress to 5.720000 seconds simulation time
+Progress to 5.730000 seconds simulation time
+Progress to 5.740000 seconds simulation time
+Progress to 5.750000 seconds simulation time
+Progress to 5.760000 seconds simulation time
+Progress to 5.770000 seconds simulation time
+Progress to 5.780000 seconds simulation time
+Progress to 5.790000 seconds simulation time
+Progress to 5.800000 seconds simulation time
+Progress to 5.810000 seconds simulation time
+Progress to 5.820000 seconds simulation time
+Progress to 5.830000 seconds simulation time
+Progress to 5.840000 seconds simulation time
+Progress to 5.850000 seconds simulation time
+Progress to 5.860000 seconds simulation time
+Progress to 5.870000 seconds simulation time
+Progress to 5.880000 seconds simulation time
+Progress to 5.890000 seconds simulation time
+Progress to 5.900000 seconds simulation time
+Progress to 5.910000 seconds simulation time
+Progress to 5.920000 seconds simulation time
+Progress to 5.930000 seconds simulation time
+Progress to 5.940000 seconds simulation time
+Progress to 5.950000 seconds simulation time
+Progress to 5.960000 seconds simulation time
+Progress to 5.970000 seconds simulation time
+Progress to 5.980000 seconds simulation time
+Progress to 5.990000 seconds simulation time
+Progress to 6.000000 seconds simulation time
+Progress to 6.010000 seconds simulation time
+Progress to 6.020000 seconds simulation time
+Progress to 6.030000 seconds simulation time
+Progress to 6.040000 seconds simulation time
+Progress to 6.050000 seconds simulation time
+Progress to 6.060000 seconds simulation time
+Progress to 6.070000 seconds simulation time
+Progress to 6.080000 seconds simulation time
+Progress to 6.090000 seconds simulation time
+Progress to 6.100000 seconds simulation time
+Progress to 6.110000 seconds simulation time
+Progress to 6.120000 seconds simulation time
+Progress to 6.130000 seconds simulation time
+Progress to 6.140000 seconds simulation time
+Progress to 6.150000 seconds simulation time
+Progress to 6.160000 seconds simulation time
+Progress to 6.170000 seconds simulation time
+Progress to 6.180000 seconds simulation time
+Progress to 6.190000 seconds simulation time
+Progress to 6.200000 seconds simulation time
+Progress to 6.210000 seconds simulation time
+Progress to 6.220000 seconds simulation time
+Progress to 6.230000 seconds simulation time
+Progress to 6.240000 seconds simulation time
+Progress to 6.250000 seconds simulation time
+Progress to 6.260000 seconds simulation time
+Progress to 6.270000 seconds simulation time
+Progress to 6.280000 seconds simulation time
+Progress to 6.290000 seconds simulation time
+Progress to 6.300000 seconds simulation time
+Progress to 6.310000 seconds simulation time
+Progress to 6.320000 seconds simulation time
+Progress to 6.330000 seconds simulation time
+Progress to 6.340000 seconds simulation time
+Progress to 6.350000 seconds simulation time
+Progress to 6.360000 seconds simulation time
+Progress to 6.370000 seconds simulation time
+Progress to 6.380000 seconds simulation time
+Progress to 6.390000 seconds simulation time
+Progress to 6.400000 seconds simulation time
+Progress to 6.410000 seconds simulation time
+Progress to 6.420000 seconds simulation time
+Progress to 6.430000 seconds simulation time
+Progress to 6.440000 seconds simulation time
+Progress to 6.450000 seconds simulation time
+Progress to 6.460000 seconds simulation time
+Progress to 6.470000 seconds simulation time
+Progress to 6.480000 seconds simulation time
+Progress to 6.490000 seconds simulation time
+Progress to 6.500000 seconds simulation time
+27066.685454
+LOG_OUTPUT_FILE				log.txt
+ENABLE_QCN			Yes
+USE_DYNAMIC_PFC_THRESHOLD	Yes
+PACKET_PAYLOAD_SIZE		1000
+TOPOLOGY_FILE			mix/fat/topology/fat_25G_100G_10us.txt
+FLOW_FILE			mix/fat/flow_distribution/WebSearch_25G_30%_0.1s.txt
+TRACE_FILE			mix/fat/trace.txt
+TRACE_OUTPUT_FILE		mix/fat/mix.tr
+FCT_OUTPUT_FILE		experiment-results/hpcc/fat/25G_30L/0.1s/dynamic_u0.45_fnv/fct.txt
+PFC_OUTPUT_FILE				mix/fat/pfc.txt
+SIMULATOR_STOP_TIME		2.5
+CC_MODE		3
+ALPHA_RESUME_INTERVAL		1
+RATE_DECREASE_INTERVAL		4
+CLAMP_TARGET_RATE		No
+RP_TIMER			900
+EWMA_GAIN			0.00390625
+FAST_RECOVERY_TIMES		1
+RATE_AI				50Mb/s
+RATE_HAI			100Mb/s
+MIN_RATE		100Mb/s
+DCTCP_RATE_AI				1000Mb/s
+ERROR_RATE_PER_LINK		0
+L2_CHUNK_SIZE			4000
+L2_ACK_INTERVAL			1
+L2_BACK_TO_ZERO			No
+HAS_WIN		1
+GLOBAL_T		1
+VAR_WIN		1
+FAST_REACT		1
+U_TARGET		0.95
+MI_THRESH		0
+INT_MULTI				1
+MULTI_RATE				0
+SAMPLE_FEEDBACK				0
+PINT_LOG_BASE				1.05
+PINT_PROB				1
+RATE_BOUND		1
+ACK_HIGH_PRIO		0
+LINK_DOWN				0 0 0
+ENABLE_TRACE				1
+KMAX_MAP				 25000000000 400 50000000000 800 100000000000 1600 400000000000 6400
+KMIN_MAP				 25000000000 100 50000000000 200 100000000000 400 400000000000 1600
+PMAX_MAP				 25000000000 0.2 50000000000 0.2 100000000000 0.2 400000000000 0.2
+BUFFER_SIZE				32
+QLEN_MON_FILE				mix/fat/qlen_mon.txt
+QLEN_MON_START				2000000000
+QLEN_MON_END				2100000000
+ENABLE_SKETCH				1
+ENABLE_MAGIC				1
+SKETCH_DEPTH				2
+SKETCH_WIDTH				65537
+SKETCH_GRANULARITY				5
+SKETCH_WINDOW_SIZE				0.5
+MAGIC_HH_MODE				1
+MAGIC_U				0.45
+QLEN_OUTPUT_FILE				experiment-results/hpcc/fat/25G_30L/0.1s/dynamic_u0.45_fnv/qlen.dat
+maxRtt=120960 maxBdp=378000
+Running Simulation.
+Progress to 0.010000 seconds simulation time
+Progress to 0.020000 seconds simulation time
+Progress to 0.030000 seconds simulation time
+Progress to 0.040000 seconds simulation time
+Progress to 0.050000 seconds simulation time
+Progress to 0.060000 seconds simulation time
+Progress to 0.070000 seconds simulation time
+Progress to 0.080000 seconds simulation time
+Progress to 0.090000 seconds simulation time
+Progress to 0.100000 seconds simulation time
+Progress to 0.110000 seconds simulation time
+Progress to 0.120000 seconds simulation time
+Progress to 0.130000 seconds simulation time
+Progress to 0.140000 seconds simulation time
+Progress to 0.150000 seconds simulation time
+Progress to 0.160000 seconds simulation time
+Progress to 0.170000 seconds simulation time
+Progress to 0.180000 seconds simulation time
+Progress to 0.190000 seconds simulation time
+Progress to 0.200000 seconds simulation time
+Progress to 0.210000 seconds simulation time
+Progress to 0.220000 seconds simulation time
+Progress to 0.230000 seconds simulation time
+Progress to 0.240000 seconds simulation time
+Progress to 0.250000 seconds simulation time
+Progress to 0.260000 seconds simulation time
+Progress to 0.270000 seconds simulation time
+Progress to 0.280000 seconds simulation time
+Progress to 0.290000 seconds simulation time
+Progress to 0.300000 seconds simulation time
+Progress to 0.310000 seconds simulation time
+Progress to 0.320000 seconds simulation time
+Progress to 0.330000 seconds simulation time
+Progress to 0.340000 seconds simulation time
+Progress to 0.350000 seconds simulation time
+Progress to 0.360000 seconds simulation time
+Progress to 0.370000 seconds simulation time
+Progress to 0.380000 seconds simulation time
+Progress to 0.390000 seconds simulation time
+Progress to 0.400000 seconds simulation time
+Progress to 0.410000 seconds simulation time
+Progress to 0.420000 seconds simulation time
+Progress to 0.430000 seconds simulation time
+Progress to 0.440000 seconds simulation time
+Progress to 0.450000 seconds simulation time
+Progress to 0.460000 seconds simulation time
+Progress to 0.470000 seconds simulation time
+Progress to 0.480000 seconds simulation time
+Progress to 0.490000 seconds simulation time
+Progress to 0.500000 seconds simulation time
+Progress to 0.510000 seconds simulation time
+Progress to 0.520000 seconds simulation time
+Progress to 0.530000 seconds simulation time
+Progress to 0.540000 seconds simulation time
+Progress to 0.550000 seconds simulation time
+Progress to 0.560000 seconds simulation time
+Progress to 0.570000 seconds simulation time
+Progress to 0.580000 seconds simulation time
+Progress to 0.590000 seconds simulation time
+Progress to 0.600000 seconds simulation time
+Progress to 0.610000 seconds simulation time
+Progress to 0.620000 seconds simulation time
+Progress to 0.630000 seconds simulation time
+Progress to 0.640000 seconds simulation time
+Progress to 0.650000 seconds simulation time
+Progress to 0.660000 seconds simulation time
+Progress to 0.670000 seconds simulation time
+Progress to 0.680000 seconds simulation time
+Progress to 0.690000 seconds simulation time
+Progress to 0.700000 seconds simulation time
+Progress to 0.710000 seconds simulation time
+Progress to 0.720000 seconds simulation time
+Progress to 0.730000 seconds simulation time
+Progress to 0.740000 seconds simulation time
+Progress to 0.750000 seconds simulation time
+Progress to 0.760000 seconds simulation time
+Progress to 0.770000 seconds simulation time
+Progress to 0.780000 seconds simulation time
+Progress to 0.790000 seconds simulation time
+Progress to 0.800000 seconds simulation time
+Progress to 0.810000 seconds simulation time
+Progress to 0.820000 seconds simulation time
+Progress to 0.830000 seconds simulation time
+Progress to 0.840000 seconds simulation time
+Progress to 0.850000 seconds simulation time
+Progress to 0.860000 seconds simulation time
+Progress to 0.870000 seconds simulation time
+Progress to 0.880000 seconds simulation time
+Progress to 0.890000 seconds simulation time
+Progress to 0.900000 seconds simulation time
+Progress to 0.910000 seconds simulation time
+Progress to 0.920000 seconds simulation time
+Progress to 0.930000 seconds simulation time
+Progress to 0.940000 seconds simulation time
+Progress to 0.950000 seconds simulation time
+Progress to 0.960000 seconds simulation time
+Progress to 0.970000 seconds simulation time
+Progress to 0.980000 seconds simulation time
+Progress to 0.990000 seconds simulation time
+Progress to 1.000000 seconds simulation time
+Progress to 1.010000 seconds simulation time
+Progress to 1.020000 seconds simulation time
+Progress to 1.030000 seconds simulation time
+Progress to 1.040000 seconds simulation time
+Progress to 1.050000 seconds simulation time
+Progress to 1.060000 seconds simulation time
+Progress to 1.070000 seconds simulation time
+Progress to 1.080000 seconds simulation time
+Progress to 1.090000 seconds simulation time
+Progress to 1.100000 seconds simulation time
+Progress to 1.110000 seconds simulation time
+Progress to 1.120000 seconds simulation time
+Progress to 1.130000 seconds simulation time
+Progress to 1.140000 seconds simulation time
+Progress to 1.150000 seconds simulation time
+Progress to 1.160000 seconds simulation time
+Progress to 1.170000 seconds simulation time
+Progress to 1.180000 seconds simulation time
+Progress to 1.190000 seconds simulation time
+Progress to 1.200000 seconds simulation time
+Progress to 1.210000 seconds simulation time
+Progress to 1.220000 seconds simulation time
+Progress to 1.230000 seconds simulation time
+Progress to 1.240000 seconds simulation time
+Progress to 1.250000 seconds simulation time
+Progress to 1.260000 seconds simulation time
+Progress to 1.270000 seconds simulation time
+Progress to 1.280000 seconds simulation time
+Progress to 1.290000 seconds simulation time
+Progress to 1.300000 seconds simulation time
+Progress to 1.310000 seconds simulation time
+Progress to 1.320000 seconds simulation time
+Progress to 1.330000 seconds simulation time
+Progress to 1.340000 seconds simulation time
+Progress to 1.350000 seconds simulation time
+Progress to 1.360000 seconds simulation time
+Progress to 1.370000 seconds simulation time
+Progress to 1.380000 seconds simulation time
+Progress to 1.390000 seconds simulation time
+Progress to 1.400000 seconds simulation time
+Progress to 1.410000 seconds simulation time
+Progress to 1.420000 seconds simulation time
+Progress to 1.430000 seconds simulation time
+Progress to 1.440000 seconds simulation time
+Progress to 1.450000 seconds simulation time
+Progress to 1.460000 seconds simulation time
+Progress to 1.470000 seconds simulation time
+Progress to 1.480000 seconds simulation time
+Progress to 1.490000 seconds simulation time
+Progress to 1.500000 seconds simulation time
+Progress to 1.510000 seconds simulation time
+Progress to 1.520000 seconds simulation time
+Progress to 1.530000 seconds simulation time
+Progress to 1.540000 seconds simulation time
+Progress to 1.550000 seconds simulation time
+Progress to 1.560000 seconds simulation time
+Progress to 1.570000 seconds simulation time
+Progress to 1.580000 seconds simulation time
+Progress to 1.590000 seconds simulation time
+Progress to 1.600000 seconds simulation time
+Progress to 1.610000 seconds simulation time
+Progress to 1.620000 seconds simulation time
+Progress to 1.630000 seconds simulation time
+Progress to 1.640000 seconds simulation time
+Progress to 1.650000 seconds simulation time
+Progress to 1.660000 seconds simulation time
+Progress to 1.670000 seconds simulation time
+Progress to 1.680000 seconds simulation time
+Progress to 1.690000 seconds simulation time
+Progress to 1.700000 seconds simulation time
+Progress to 1.710000 seconds simulation time
+Progress to 1.720000 seconds simulation time
+Progress to 1.730000 seconds simulation time
+Progress to 1.740000 seconds simulation time
+Progress to 1.750000 seconds simulation time
+Progress to 1.760000 seconds simulation time
+Progress to 1.770000 seconds simulation time
+Progress to 1.780000 seconds simulation time
+Progress to 1.790000 seconds simulation time
+Progress to 1.800000 seconds simulation time
+Progress to 1.810000 seconds simulation time
+Progress to 1.820000 seconds simulation time
+Progress to 1.830000 seconds simulation time
+Progress to 1.840000 seconds simulation time
+Progress to 1.850000 seconds simulation time
+Progress to 1.860000 seconds simulation time
+Progress to 1.870000 seconds simulation time
+Progress to 1.880000 seconds simulation time
+Progress to 1.890000 seconds simulation time
+Progress to 1.900000 seconds simulation time
+Progress to 1.910000 seconds simulation time
+Progress to 1.920000 seconds simulation time
+Progress to 1.930000 seconds simulation time
+Progress to 1.940000 seconds simulation time
+Progress to 1.950000 seconds simulation time
+Progress to 1.960000 seconds simulation time
+Progress to 1.970000 seconds simulation time
+Progress to 1.980000 seconds simulation time
+Progress to 1.990000 seconds simulation time
+Progress to 2.000000 seconds simulation time
+LOG_OUTPUT_FILE				log.txt
+ENABLE_QCN			Yes
+USE_DYNAMIC_PFC_THRESHOLD	Yes
+PACKET_PAYLOAD_SIZE		1000
+TOPOLOGY_FILE			mix/fat/topology/fat_25G_100G_10us.txt
+FLOW_FILE			mix/fat/flow_distribution/WebSearch_25G_30%_0.1s.txt
+TRACE_FILE			mix/fat/trace.txt
+TRACE_OUTPUT_FILE		mix/fat/mix.tr
+FCT_OUTPUT_FILE		experiment-results/hpcc/fat/25G_30L/0.1s/dynamic_u0.45_fnv/fct.txt
+PFC_OUTPUT_FILE				mix/fat/pfc.txt
+SIMULATOR_STOP_TIME		2.5
+CC_MODE		3
+ALPHA_RESUME_INTERVAL		1
+RATE_DECREASE_INTERVAL		4
+CLAMP_TARGET_RATE		No
+RP_TIMER			900
+EWMA_GAIN			0.00390625
+FAST_RECOVERY_TIMES		1
+RATE_AI				50Mb/s
+RATE_HAI			100Mb/s
+MIN_RATE		100Mb/s
+DCTCP_RATE_AI				1000Mb/s
+ERROR_RATE_PER_LINK		0
+L2_CHUNK_SIZE			4000
+L2_ACK_INTERVAL			1
+L2_BACK_TO_ZERO			No
+HAS_WIN		1
+GLOBAL_T		1
+VAR_WIN		1
+FAST_REACT		1
+U_TARGET		0.95
+MI_THRESH		0
+INT_MULTI				1
+MULTI_RATE				0
+SAMPLE_FEEDBACK				0
+PINT_LOG_BASE				1.05
+PINT_PROB				1
+RATE_BOUND		1
+ACK_HIGH_PRIO		0
+LINK_DOWN				0 0 0
+ENABLE_TRACE				1
+KMAX_MAP				 25000000000 400 50000000000 800 100000000000 1600 400000000000 6400
+KMIN_MAP				 25000000000 100 50000000000 200 100000000000 400 400000000000 1600
+PMAX_MAP				 25000000000 0.2 50000000000 0.2 100000000000 0.2 400000000000 0.2
+BUFFER_SIZE				32
+QLEN_MON_FILE				mix/fat/qlen_mon.txt
+QLEN_MON_START				2000000000
+QLEN_MON_END				2100000000
+ENABLE_SKETCH				1
+ENABLE_MAGIC				1
+SKETCH_DEPTH				2
+SKETCH_WIDTH				65537
+SKETCH_GRANULARITY				5
+SKETCH_WINDOW_SIZE				0.5
+MAGIC_HH_MODE				1
+MAGIC_U				0.45
+QLEN_OUTPUT_FILE				experiment-results/hpcc/fat/25G_30L/0.1s/dynamic_u0.45_fnv/qlen.dat
+maxRtt=120960 maxBdp=378000
+Running Simulation.
+Progress to 0.010000 seconds simulation time
+Progress to 0.020000 seconds simulation time
+Progress to 0.030000 seconds simulation time
+Progress to 0.040000 seconds simulation time
+Progress to 0.050000 seconds simulation time
+Progress to 0.060000 seconds simulation time
+Progress to 0.070000 seconds simulation time
+Progress to 0.080000 seconds simulation time
+Progress to 0.090000 seconds simulation time
+Progress to 0.100000 seconds simulation time
+Progress to 0.110000 seconds simulation time
+Progress to 0.120000 seconds simulation time
+Progress to 0.130000 seconds simulation time
+Progress to 0.140000 seconds simulation time
+Progress to 0.150000 seconds simulation time
+Progress to 0.160000 seconds simulation time
+Progress to 0.170000 seconds simulation time
+Progress to 0.180000 seconds simulation time
+Progress to 0.190000 seconds simulation time
+Progress to 0.200000 seconds simulation time
+Progress to 0.210000 seconds simulation time
+Progress to 0.220000 seconds simulation time
+Progress to 0.230000 seconds simulation time
+Progress to 0.240000 seconds simulation time
+Progress to 0.250000 seconds simulation time
+Progress to 0.260000 seconds simulation time
+Progress to 0.270000 seconds simulation time
+Progress to 0.280000 seconds simulation time
+Progress to 0.290000 seconds simulation time
+Progress to 0.300000 seconds simulation time
+Progress to 0.310000 seconds simulation time
+Progress to 0.320000 seconds simulation time
+Progress to 0.330000 seconds simulation time
+Progress to 0.340000 seconds simulation time
+Progress to 0.350000 seconds simulation time
+Progress to 0.360000 seconds simulation time
+Progress to 0.370000 seconds simulation time
+Progress to 0.380000 seconds simulation time
+Progress to 0.390000 seconds simulation time
+Progress to 0.400000 seconds simulation time
+Progress to 0.410000 seconds simulation time
+Progress to 0.420000 seconds simulation time
+Progress to 0.430000 seconds simulation time
+Progress to 0.440000 seconds simulation time
+Progress to 0.450000 seconds simulation time
+Progress to 0.460000 seconds simulation time
+Progress to 0.470000 seconds simulation time
+Progress to 0.480000 seconds simulation time
+Progress to 0.490000 seconds simulation time
+Progress to 0.500000 seconds simulation time
+Progress to 0.510000 seconds simulation time
+Progress to 0.520000 seconds simulation time
+Progress to 0.530000 seconds simulation time
+Progress to 0.540000 seconds simulation time
+Progress to 0.550000 seconds simulation time
+Progress to 0.560000 seconds simulation time
+Progress to 0.570000 seconds simulation time
+Progress to 0.580000 seconds simulation time
+Progress to 0.590000 seconds simulation time
+Progress to 0.600000 seconds simulation time
+Progress to 0.610000 seconds simulation time
+Progress to 0.620000 seconds simulation time
+Progress to 0.630000 seconds simulation time
+Progress to 0.640000 seconds simulation time
+Progress to 0.650000 seconds simulation time
+Progress to 0.660000 seconds simulation time
+Progress to 0.670000 seconds simulation time
+Progress to 0.680000 seconds simulation time
+Progress to 0.690000 seconds simulation time
+Progress to 0.700000 seconds simulation time
+Progress to 0.710000 seconds simulation time
+Progress to 0.720000 seconds simulation time
+Progress to 0.730000 seconds simulation time
+Progress to 0.740000 seconds simulation time
+Progress to 0.750000 seconds simulation time
+Progress to 0.760000 seconds simulation time
+Progress to 0.770000 seconds simulation time
+Progress to 0.780000 seconds simulation time
+Progress to 0.790000 seconds simulation time
+Progress to 0.800000 seconds simulation time
+Progress to 0.810000 seconds simulation time
+Progress to 0.820000 seconds simulation time
+Progress to 0.830000 seconds simulation time
+Progress to 0.840000 seconds simulation time
+Progress to 0.850000 seconds simulation time
+Progress to 0.860000 seconds simulation time
+Progress to 0.870000 seconds simulation time
+Progress to 0.880000 seconds simulation time
+Progress to 0.890000 seconds simulation time
+Progress to 0.900000 seconds simulation time
+Progress to 0.910000 seconds simulation time
+Progress to 0.920000 seconds simulation time
+Progress to 0.930000 seconds simulation time
+Progress to 0.940000 seconds simulation time
+Progress to 0.950000 seconds simulation time
+Progress to 0.960000 seconds simulation time
+Progress to 0.970000 seconds simulation time
+Progress to 0.980000 seconds simulation time
+Progress to 0.990000 seconds simulation time
+Progress to 1.000000 seconds simulation time
+Progress to 1.010000 seconds simulation time
+Progress to 1.020000 seconds simulation time
+Progress to 1.030000 seconds simulation time
+Progress to 1.040000 seconds simulation time
+Progress to 1.050000 seconds simulation time
+Progress to 1.060000 seconds simulation time
+Progress to 1.070000 seconds simulation time
+Progress to 1.080000 seconds simulation time
+Progress to 1.090000 seconds simulation time
+Progress to 1.100000 seconds simulation time
+Progress to 1.110000 seconds simulation time
+Progress to 1.120000 seconds simulation time
+Progress to 1.130000 seconds simulation time
+Progress to 1.140000 seconds simulation time
+Progress to 1.150000 seconds simulation time
+Progress to 1.160000 seconds simulation time
+Progress to 1.170000 seconds simulation time
+Progress to 1.180000 seconds simulation time
+Progress to 1.190000 seconds simulation time
+Progress to 1.200000 seconds simulation time
+Progress to 1.210000 seconds simulation time
+Progress to 1.220000 seconds simulation time
+Progress to 1.230000 seconds simulation time
+Progress to 1.240000 seconds simulation time
+Progress to 1.250000 seconds simulation time
+Progress to 1.260000 seconds simulation time
+Progress to 1.270000 seconds simulation time
+Progress to 1.280000 seconds simulation time
+Progress to 1.290000 seconds simulation time
+Progress to 1.300000 seconds simulation time
+Progress to 1.310000 seconds simulation time
+Progress to 1.320000 seconds simulation time
+Progress to 1.330000 seconds simulation time
+Progress to 1.340000 seconds simulation time
+Progress to 1.350000 seconds simulation time
+Progress to 1.360000 seconds simulation time
+Progress to 1.370000 seconds simulation time
+Progress to 1.380000 seconds simulation time
+Progress to 1.390000 seconds simulation time
+Progress to 1.400000 seconds simulation time
+Progress to 1.410000 seconds simulation time
+Progress to 1.420000 seconds simulation time
+Progress to 1.430000 seconds simulation time
+Progress to 1.440000 seconds simulation time
+Progress to 1.450000 seconds simulation time
+Progress to 1.460000 seconds simulation time
+Progress to 1.470000 seconds simulation time
+Progress to 1.480000 seconds simulation time
+Progress to 1.490000 seconds simulation time
+Progress to 1.500000 seconds simulation time
+Progress to 1.510000 seconds simulation time
+Progress to 1.520000 seconds simulation time
+Progress to 1.530000 seconds simulation time
+Progress to 1.540000 seconds simulation time
+Progress to 1.550000 seconds simulation time
+Progress to 1.560000 seconds simulation time
+Progress to 1.570000 seconds simulation time
+Progress to 1.580000 seconds simulation time
+Progress to 1.590000 seconds simulation time
+Progress to 1.600000 seconds simulation time
+Progress to 1.610000 seconds simulation time
+Progress to 1.620000 seconds simulation time
+Progress to 1.630000 seconds simulation time
+Progress to 1.640000 seconds simulation time
+Progress to 1.650000 seconds simulation time
+Progress to 1.660000 seconds simulation time
+Progress to 1.670000 seconds simulation time
+Progress to 1.680000 seconds simulation time
+Progress to 1.690000 seconds simulation time
+Progress to 1.700000 seconds simulation time
+Progress to 1.710000 seconds simulation time
+Progress to 1.720000 seconds simulation time
+Progress to 1.730000 seconds simulation time
+Progress to 1.740000 seconds simulation time
+Progress to 1.750000 seconds simulation time
+Progress to 1.760000 seconds simulation time
+Progress to 1.770000 seconds simulation time
+Progress to 1.780000 seconds simulation time
+Progress to 1.790000 seconds simulation time
+Progress to 1.800000 seconds simulation time
+Progress to 1.810000 seconds simulation time
+Progress to 1.820000 seconds simulation time
+Progress to 1.830000 seconds simulation time
+Progress to 1.840000 seconds simulation time
+Progress to 1.850000 seconds simulation time
+Progress to 1.860000 seconds simulation time
+Progress to 1.870000 seconds simulation time
+Progress to 1.880000 seconds simulation time
+Progress to 1.890000 seconds simulation time
+Progress to 1.900000 seconds simulation time
+Progress to 1.910000 seconds simulation time
+Progress to 1.920000 seconds simulation time
+Progress to 1.930000 seconds simulation time
+Progress to 1.940000 seconds simulation time
+Progress to 1.950000 seconds simulation time
+Progress to 1.960000 seconds simulation time
+Progress to 1.970000 seconds simulation time
+Progress to 1.980000 seconds simulation time
+Progress to 1.990000 seconds simulation time
+Progress to 2.000000 seconds simulation time
+Progress to 2.010000 seconds simulation time
+Progress to 2.020000 seconds simulation time
+Progress to 2.030000 seconds simulation time
+Progress to 2.040000 seconds simulation time
+Progress to 2.050000 seconds simulation time
+Progress to 2.060000 seconds simulation time
+Progress to 2.070000 seconds simulation time
+Progress to 2.080000 seconds simulation time
+Progress to 2.090000 seconds simulation time
+Progress to 2.100000 seconds simulation time
+Progress to 2.110000 seconds simulation time
+Progress to 2.120000 seconds simulation time
+Progress to 2.130000 seconds simulation time
+Progress to 2.140000 seconds simulation time
+Progress to 2.150000 seconds simulation time
+Progress to 2.160000 seconds simulation time
+Progress to 2.170000 seconds simulation time
+Progress to 2.180000 seconds simulation time
+Progress to 2.190000 seconds simulation time
+Progress to 2.200000 seconds simulation time
+Progress to 2.210000 seconds simulation time
+Progress to 2.220000 seconds simulation time
+Progress to 2.230000 seconds simulation time
+Progress to 2.240000 seconds simulation time
+Progress to 2.250000 seconds simulation time
+Progress to 2.260000 seconds simulation time
+Progress to 2.270000 seconds simulation time
+Progress to 2.280000 seconds simulation time
+Progress to 2.290000 seconds simulation time
+Progress to 2.300000 seconds simulation time
+Progress to 2.310000 seconds simulation time
+Progress to 2.320000 seconds simulation time
+Progress to 2.330000 seconds simulation time
+Progress to 2.340000 seconds simulation time
+Progress to 2.350000 seconds simulation time
+Progress to 2.360000 seconds simulation time
+Progress to 2.370000 seconds simulation time
+Progress to 2.380000 seconds simulation time
+Progress to 2.390000 seconds simulation time
+Progress to 2.400000 seconds simulation time
+Progress to 2.410000 seconds simulation time
+Progress to 2.420000 seconds simulation time
+Progress to 2.430000 seconds simulation time
+Progress to 2.440000 seconds simulation time
+Progress to 2.450000 seconds simulation time
+Progress to 2.460000 seconds simulation time
+Progress to 2.470000 seconds simulation time
+Progress to 2.480000 seconds simulation time
+Progress to 2.490000 seconds simulation time
+26846.859699
+
+LOG_OUTPUT_FILE				log.txt
+Running congvergence.cc with config: mix/conv/config/u1.00_25G.txtat Mon Nov 27 19:18:48 2023
+
+ENABLE_QCN			Yes
+USE_DYNAMIC_PFC_THRESHOLD	Yes
+PACKET_PAYLOAD_SIZE		1000
+TOPOLOGY_FILE			mix/conv/topology/dumbbell_25G.txt
+FLOW_FILE			mix/conv/flow_distribution/4_exist_1_new.txt
+TRACE_FILE			mix/conv/trace.txt
+TRACE_OUTPUT_FILE		mix/conv/mix.trlog.txt
+FCT_OUTPUT_FILE		experiment-results/hpcc/conv/25G/u1.00/fct.txt
+PFC_OUTPUT_FILE				mix/conv/pfc.txt
+SIMULATOR_STOP_TIME		3
+CC_MODE		3
+ALPHA_RESUME_INTERVAL		1
+RATE_DECREASE_INTERVAL		4
+CLAMP_TARGET_RATE		No
+RP_TIMER			900
+EWMA_GAIN			0.00390625
+FAST_RECOVERY_TIMES		1
+RATE_AI				50Mb/s
+RATE_HAI			100Mb/s
+MIN_RATE		100Mb/s
+DCTCP_RATE_AI				1000Mb/s
+ERROR_RATE_PER_LINK		0
+L2_CHUNK_SIZE			4000
+L2_ACK_INTERVAL			1
+L2_BACK_TO_ZERO			No
+HAS_WIN		1
+GLOBAL_T		1
+VAR_WIN		1
+FAST_REACT		1
+U_TARGET		0.95
+MI_THRESH		0
+INT_MULTI				1
+MULTI_RATE				0
+SAMPLE_FEEDBACK				0
+PINT_LOG_BASE				1.05
+PINT_PROB				1
+RATE_BOUND		1
+ACK_HIGH_PRIO		0
+LINK_DOWN				0 0 0
+ENABLE_TRACE				1
+KMAX_MAP				 25000000000 400 50000000000 800 100000000000 1600
+KMIN_MAP				 25000000000 100 50000000000 200 100000000000 400
+PMAX_MAP				 25000000000 0.2 50000000000 0.2 100000000000 0.2
+BUFFER_SIZE				32
+QLEN_MON_FILE				mix/conv/qlen.txt
+QLEN_MON_START				2009000000
+QLEN_MON_END				2014000000
+ENABLE_SKETCH				1
+ENABLE_MAGIC				1
+SKETCH_DEPTH				2
+SKETCH_WIDTH				65537
+SKETCH_GRANULARITY				5
+SKETCH_WINDOW_SIZE				0.5
+MAGIC_HH_MODE				1
+MAGIC_U				1
+OUTPUT_FOLDER				experiment-results/hpcc/conv/25G/u1.00/
+maxRtt=60960 maxBdp=190500
+Running Simulation.
+Progress to 2.000000 seconds simulation time
+Progress to 2.010000 seconds simulation time
+Progress to 2.020000 seconds simulation time
+Progress to 2.030000 seconds simulation time
+Progress to 2.040000 seconds simulation time
+Progress to 2.050000 seconds simulation time
+Progress to 2.060000 seconds simulation time
+Progress to 2.070000 seconds simulation time
+Progress to 2.080000 seconds simulation time
+Progress to 2.090000 seconds simulation time
+Progress to 2.100000 seconds simulation time
+Progress to 2.110000 seconds simulation time
+Progress to 2.120000 seconds simulation time
+Progress to 2.130000 seconds simulation time
+Progress to 2.140000 seconds simulation time
+Progress to 2.150000 seconds simulation time
+Progress to 2.160000 seconds simulation time
+Progress to 2.170000 seconds simulation time
+Progress to 2.180000 seconds simulation time
+Progress to 2.190000 seconds simulation time
+Progress to 2.200000 seconds simulation time
+Progress to 2.210000 seconds simulation time
+Progress to 2.220000 seconds simulation time
+Progress to 2.230000 seconds simulation time
+Progress to 2.240000 seconds simulation time
+Progress to 2.250000 seconds simulation time
+Progress to 2.260000 seconds simulation time
+Progress to 2.270000 seconds simulation time
+Progress to 2.280000 seconds simulation time
+Progress to 2.290000 seconds simulation time
+Progress to 2.300000 seconds simulation time
+Progress to 2.310000 seconds simulation time
+Progress to 2.320000 seconds simulation time
+Progress to 2.330000 seconds simulation time
+Progress to 2.340000 seconds simulation time
+Progress to 2.350000 seconds simulation time
+Progress to 2.360000 seconds simulation time
+Progress to 2.370000 seconds simulation time
+Progress to 2.380000 seconds simulation time
+Progress to 2.390000 seconds simulation time
+Progress to 2.400000 seconds simulation time
+Progress to 2.410000 seconds simulation time
+Progress to 2.420000 seconds simulation time
+Progress to 2.430000 seconds simulation time
+Progress to 2.440000 seconds simulation time
+Progress to 2.450000 seconds simulation time
+Progress to 2.460000 seconds simulation time
+Progress to 2.470000 seconds simulation time
+Progress to 2.480000 seconds simulation time
+Progress to 2.490000 seconds simulation time
+Progress to 2.500000 seconds simulation time
+Progress to 2.510000 seconds simulation time
+Progress to 2.520000 seconds simulation time
+Progress to 2.530000 seconds simulation time
+Progress to 2.540000 seconds simulation time
+Progress to 2.550000 seconds simulation time
+Progress to 2.560000 seconds simulation time
+Progress to 2.570000 seconds simulation time
+Progress to 2.580000 seconds simulation time
+Progress to 2.590000 seconds simulation time
+Progress to 2.600000 seconds simulation time
+Progress to 2.610000 seconds simulation time
+Progress to 2.620000 seconds simulation time
+Progress to 2.630000 seconds simulation time
+Progress to 2.640000 seconds simulation time
+Progress to 2.650000 seconds simulation time
+Progress to 2.660000 seconds simulation time
+Progress to 2.670000 seconds simulation time
+Progress to 2.680000 seconds simulation time
+Progress to 2.690000 seconds simulation time
+Progress to 2.700000 seconds simulation time
+Progress to 2.710000 seconds simulation time
+Progress to 2.720000 seconds simulation time
+Progress to 2.730000 seconds simulation time
+Progress to 2.740000 seconds simulation time
+Progress to 2.750000 seconds simulation time
+Progress to 2.760000 seconds simulation time
+Progress to 2.770000 seconds simulation time
+Progress to 2.780000 seconds simulation time
+Progress to 2.790000 seconds simulation time
+Progress to 2.800000 seconds simulation time
+Progress to 2.810000 seconds simulation time
+Progress to 2.820000 seconds simulation time
+Progress to 2.830000 seconds simulation time
+Progress to 2.840000 seconds simulation time
+Progress to 2.850000 seconds simulation time
+Progress to 2.860000 seconds simulation time
+Progress to 2.870000 seconds simulation time
+Progress to 2.880000 seconds simulation time
+Progress to 2.890000 seconds simulation time
+Progress to 2.900000 seconds simulation time
+Progress to 2.910000 seconds simulation time
+Progress to 2.920000 seconds simulation time
+Progress to 2.930000 seconds simulation time
+Progress to 2.940000 seconds simulation time
+Progress to 2.950000 seconds simulation time
+Progress to 2.960000 seconds simulation time
+Progress to 2.970000 seconds simulation time
+Progress to 2.980000 seconds simulation time
+Progress to 2.990000 seconds simulation time
+1072.081154
+
+LOG_OUTPUT_FILE				log.txt
+Running guarded.cc with config: 'mix/guarded/config/test.txt' at Mon Nov 27 22:59:12 2023
+
+ENABLE_QCN			Yes
+USE_DYNAMIC_PFC_THRESHOLD	Yes
+PACKET_PAYLOAD_SIZE		1000
+TOPOLOGY_FILE			mix/guarded/topology/test_topo.txt
+FLOW_FILE			mix/guarded/flow_distribution/test_flow.txt
+TRACE_FILE			mix/guarded/trace.txt
+TRACE_OUTPUT_FILE		mix/guarded/mix.trlog.txt
+FCT_OUTPUT_FILE		experiment-results/hpcc/guarded/test/fct.txt
+PFC_OUTPUT_FILE				mix/guarded/pfc.txt
+SIMULATOR_STOP_TIME		2.1
+CC_MODE		3
+ALPHA_RESUME_INTERVAL		1
+RATE_DECREASE_INTERVAL		4
+CLAMP_TARGET_RATE		No
+RP_TIMER			900
+EWMA_GAIN			0.00390625
+FAST_RECOVERY_TIMES		1
+RATE_AI				50Mb/s
+RATE_HAI			100Mb/s
+MIN_RATE		100Mb/s
+DCTCP_RATE_AI				1000Mb/s
+ERROR_RATE_PER_LINK		0
+L2_CHUNK_SIZE			4000
+L2_ACK_INTERVAL			1
+L2_BACK_TO_ZERO			No
+HAS_WIN		1
+GLOBAL_T		1
+VAR_WIN		1
+FAST_REACT		1
+U_TARGET		0.95
+MI_THRESH		0
+INT_MULTI				1
+MULTI_RATE				0
+SAMPLE_FEEDBACK				0
+PINT_LOG_BASE				1.05
+PINT_PROB				1
+RATE_BOUND		1
+ACK_HIGH_PRIO		0
+LINK_DOWN				0 0 0
+ENABLE_TRACE				1
+KMAX_MAP				 2000000000 60 10000000000 150 25000000000 400 50000000000 200 100000000000 400
+KMIN_MAP				 2000000000 20 10000000000 50 25000000000 100 50000000000 50 100000000000 100
+PMAX_MAP				 2000000000 1 10000000000 1 25000000000 1 50000000000 1 100000000000 1
+BUFFER_SIZE				32
+QLEN_MON_FILE				mix/guarded/qlen_mon.txt
+QLEN_MON_START				2000000000
+QLEN_MON_END				2001500000
+ENABLE_SKETCH				0
+ENABLE_MAGIC				0
+SKETCH_DEPTH				2
+SKETCH_WIDTH				65537
+SKETCH_GRANULARITY				5
+SKETCH_WINDOW_SIZE				0.5
+MAGIC_HH_MODE				1
+MAGIC_U				0.92
+SMALL_FLOW_SENDER				0
+SMALL_FLOW_RECEIVER				1
+OUTPUT_FOLDER				experiment-results/hpcc/guarded/test/
+maxRtt=41600 maxBdp=52000
+Running Simulation.
+Progress to 2.000000 seconds simulation time
+qp set to stop in 0.020000 seconds
+Progress to 2.010000 seconds simulation time
+Progress to 2.020000 seconds simulation time
+Progress to 2.030000 seconds simulation time
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 ACK NIC cannot find the flow
+ERROR: node:0 NACK NIC cannot find the flow
+Progress to 2.040000 seconds simulation time
+Progress to 2.050000 seconds simulation time
+Progress to 2.060000 seconds simulation time
+Progress to 2.070000 seconds simulation time
+Progress to 2.080000 seconds simulation time
+Progress to 2.090000 seconds simulation time
+3.406240

@@ -60,6 +60,7 @@ public:
   void SetPG (uint16_t pg);
   void SetSize(uint64_t size);
   void Finish();
+  double m_endTime;
 
 protected:
   virtual void DoDispose (void);

@@ -36,6 +36,8 @@
 #include <ns3/rdma-driver.h>
 #include <ns3/switch-node.h>
 #include <ns3/sim-setting.h>
+#include <string>
+#include <time.h>
 
 using namespace ns3;
 using namespace std;
@@ -70,7 +72,22 @@ double u_target = 0.95;
 uint32_t int_multi = 1;
 bool rate_bound = true;
 
-// config parameters specially for sketch
+uint32_t ack_high_prio = 0;
+uint64_t link_down_time = 0;
+uint32_t link_down_A = 0, link_down_B = 0;
+
+uint32_t enable_trace = 1;
+
+uint32_t buffer_size = 16;
+
+uint32_t qlen_dump_interval = 1000000, qlen_mon_interval = 100;
+uint64_t qlen_mon_start = 2000000000, qlen_mon_end = 2100000000;
+string qlen_mon_file;
+
+unordered_map<uint64_t, uint32_t> rate2kmax, rate2kmin;
+unordered_map<uint64_t, double> rate2pmax;
+
+// MAGIC parameters
 bool enable_sketch;
 bool enable_magic;
 
@@ -85,20 +102,7 @@ std::string qlen_output_file = "qlen.txt";
 std::ofstream log_output;
 std::string log_output_file = "log.txt";
 
-uint32_t ack_high_prio = 0;
-uint64_t link_down_time = 0;
-uint32_t link_down_A = 0, link_down_B = 0;
-
-uint32_t enable_trace = 1;
-
-uint32_t buffer_size = 16;
-
-uint32_t qlen_dump_interval = 100000000, qlen_mon_interval = 100000;
-uint64_t qlen_mon_start = 2000000000, qlen_mon_end = 2100000000;
-string qlen_mon_file;
-
-unordered_map<uint64_t, uint32_t> rate2kmax, rate2kmin;
-unordered_map<uint64_t, double> rate2pmax;
+std::string output_folder = "./";
 
 /************************************************
  * Runtime varibles
@@ -134,7 +138,8 @@ std::vector<Ipv4Address> serverAddress;
 std::unordered_map<uint32_t, unordered_map<uint32_t, uint16_t> > portNumder;
 
 struct FlowInput{
-	uint32_t src, dst, pg, maxPacketCount, port, dport;
+	uint32_t src, dst, pg, port, dport;
+	uint64_t maxPacketCount;
 	double start_time;
 	uint32_t idx;
 };
@@ -233,24 +238,6 @@ void monitor_buffer(FILE* qlen_output, NodeContainer *n){
 	}
 	if (Simulator::Now().GetTimeStep() < qlen_mon_end)
 		Simulator::Schedule(NanoSeconds(qlen_mon_interval), &monitor_buffer, qlen_output, n);
-}
-
-void monitor_qlen(FILE* qlen_output, NodeContainer *n){
-	for (uint32_t i = 320; i <= 375; i++){
-		if (n->Get(i)->GetNodeType() == 1){
-			Ptr<SwitchNode> sw = DynamicCast<SwitchNode>(n->Get(i));
-			for (uint32_t j = 1; j < sw->GetNDevices(); j++){
-				uint32_t size = 0;
-				for (uint32_t k = 0; k < SwitchMmu::qCnt; k++)
-					size += sw->m_mmu->egress_bytes[j][k];
-				if (size > 0)
-                    fprintf(qlen_output, "%ld %u %u %u\n", Simulator::Now().GetNanoSeconds(), i, j, size);		
-			}
-		}
-	}
-
-	if (Simulator::Now().GetTimeStep() < qlen_mon_end)
-		Simulator::Schedule(NanoSeconds(qlen_mon_interval), &monitor_qlen, qlen_output, n);
 }
 
 void CalculateRoute(Ptr<Node> host){
@@ -374,6 +361,48 @@ void PrintProgress()
     Simulator::Schedule(progressInterval, &PrintProgress);
 }
 
+// Measure throughput and goodput
+uint64_t txBytes[5];
+std::ofstream Thpt[5];
+uint64_t rxBytes[5];
+std::ofstream Gdpt[5];
+void InitializeCounters()
+{
+	for (std::size_t i = 0; i < 5; ++i)
+	{
+        txBytes[i] = 0;
+		rxBytes[i] = 0;
+	}
+}
+
+void TraceSinkTx(std::size_t index, Ptr<Packet> p, Ptr<RdmaQueuePair> qp)
+{
+	txBytes[index] += p->GetSize();
+}
+
+void TraceSinkRx(std::size_t index, Ptr<Packet> p, Ptr<RdmaRxQueuePair> qp)
+{
+	rxBytes[index] += p->GetSize();
+}
+
+Time measurementInterval = MilliSeconds(1);
+void PrintThroughput(Time measurementTime)
+{
+	for (std::size_t i = 0; i < 5; ++i)
+	{
+		Thpt[i] << std::fixed << measurementTime.GetSeconds() << " "
+				  << (txBytes[i] * 8) / measurementInterval.GetSeconds() / 1e9 << std::endl;
+		txBytes[i] = 0;
+	}
+	for (std::size_t i = 0; i < 5; ++i)
+	{
+		Gdpt[i] << std::fixed << measurementTime.GetSeconds() << " "
+				  << (rxBytes[i] * 8) / measurementInterval.GetSeconds() / 1e9 << std::endl;
+		rxBytes[i] = 0;
+	}
+	Simulator::Schedule(measurementInterval, &PrintThroughput, measurementTime + measurementInterval);
+}
+
 int main(int argc, char *argv[])
 {
 	clock_t begint, endt;
@@ -401,7 +430,7 @@ int main(int argc, char *argv[])
 		struct tm *localTime;
 		currentTime = time(NULL);
 		localTime = localtime(&currentTime);
-		std::cout << "Running fat_tree.cc with config: \'" << argv[1] << "\' at " << asctime(localTime) << std::endl;
+		std::cout << "Running congvergence.cc with config: \'" << argv[1] << "\' at " << asctime(localTime) << std::endl;
 #else
 		conf.open(PATH_TO_PGO_CONFIG);
 #endif
@@ -409,6 +438,7 @@ int main(int argc, char *argv[])
 		{
 			std::string key;
 			conf >> key;
+
 			//std::cout << conf.cur << "\n";
 
 			if (key.compare("ENABLE_QCN") == 0)
@@ -519,10 +549,10 @@ int main(int argc, char *argv[])
 				std::string v;
 				conf >> v;
 				trace_output_file = v;
-				// if (argc > 2)
-				// {
-				// 	trace_output_file = trace_output_file + std::string(argv[2]);
-				// }
+				if (argc > 2)
+				{
+					trace_output_file = trace_output_file + std::string(argv[2]);
+				}
 				std::cout << "TRACE_OUTPUT_FILE\t\t" << trace_output_file << "\n";
 			}
 			else if (key.compare("SIMULATOR_STOP_TIME") == 0)
@@ -741,7 +771,10 @@ int main(int argc, char *argv[])
 				log_output.open(log_output_file, std::ofstream::out | std::ofstream::app);
 				std::cout.rdbuf(log_output.rdbuf());
 				std::cout << "LOG_OUTPUT_FILE\t\t\t\t" << log_output_file << '\n';
-			}
+			}else if (key.compare("OUTPUT_FOLDER") == 0){
+                conf >> output_folder;
+                std::cout << "OUTPUT_FOLDER\t\t\t\t" << output_folder << '\n';
+            }
 			fflush(stdout);
 		}
 		conf.close();
@@ -981,6 +1014,13 @@ int main(int argc, char *argv[])
 			rdmaHw->SetAttribute("DctcpRateAI", DataRateValue(DataRate(dctcp_rate_ai)));
 			rdmaHw->SetAttribute("EnableMagicControl", BooleanValue(enable_magic));
 			rdmaHw->SetPintSmplThresh(pint_prob);
+
+            if (i >= 0 && i <= 4)
+                rdmaHw->TraceConnectWithoutContext("Tx", MakeBoundCallback(TraceSinkTx, i));
+
+			if (i >= 5 && i <= 9)
+				rdmaHw->TraceConnectWithoutContext("Rx", MakeBoundCallback(TraceSinkRx, i - 5));
+
 			// create and install RdmaDriver
 			Ptr<RdmaDriver> rdma = CreateObject<RdmaDriver>();
 			Ptr<Node> node = n.Get(i);
@@ -1107,17 +1147,28 @@ int main(int argc, char *argv[])
 	}
 
 	// schedule buffer monitor
-	// FILE* qlen_output = fopen(qlen_mon_file.c_str(), "w");
-	// Simulator::Schedule(NanoSeconds(qlen_mon_start), &monitor_buffer, qlen_output, &n);
+	FILE* qlen_output = fopen(qlen_mon_file.c_str(), "w");
+	Simulator::Schedule(NanoSeconds(qlen_mon_start), &monitor_buffer, qlen_output, &n);
 
-    // schedule buffer queue length monitor for magic
-    FILE* qlen_output = fopen(qlen_output_file.c_str(), "w");
-	Simulator::Schedule(NanoSeconds(qlen_mon_start), &monitor_qlen, qlen_output, &n);
+	// 输出各类 trace 信息
+	Time startTime = Seconds(2);
+	Simulator::Schedule(startTime, &PrintProgress);
+	Simulator::Schedule(startTime, &InitializeCounters);
+	Simulator::Schedule(startTime + measurementInterval, &PrintThroughput, measurementInterval);
+
+	for (std::size_t i = 0; i < 5; ++i)
+	{
+		std::string thpt_file = output_folder + "thpt_flow_" + std::to_string(i) + ".dat";
+        std::string gdpt_file = output_folder + "gdpt_flow_" + std::to_string(i) + ".dat";
+		Thpt[i].open(thpt_file, std::ios::out);
+		Thpt[i] << "#Time(s)" << "\t" << "Thpt(Gbps)" << std::endl;
+        Gdpt[i].open(gdpt_file, std::ios::out);
+        Gdpt[i] << "#Time(s)" << "\t" << "Gdpt(Gbps)" << std::endl;
+	}
+
 	//
 	// Now, do the actual simulation.
 	//
-	double startTime = 2;
-	Simulator::Schedule(Seconds(startTime), &PrintProgress);
 	std::cout << "Running Simulation.\n";
 	fflush(stdout);
 	NS_LOG_INFO("Run Simulation.");
@@ -1129,5 +1180,4 @@ int main(int argc, char *argv[])
 
 	endt = clock();
 	std::cout << (double)(endt - begint) / CLOCKS_PER_SEC << "\n";
-
 }

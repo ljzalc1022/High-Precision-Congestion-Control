@@ -49,9 +49,10 @@ public:
    *
    * \param ip The IP address of the remote udp server
    * \param port The port number of the remote udp server
+   * \param endTime The time that the rdma client will last. Set to -1 if you don't want to denote an end time
    */
 
-  RdmaClientHelper (uint16_t pg, Ipv4Address sip, Ipv4Address dip, uint16_t sport, uint16_t dport, uint64_t size, uint32_t win, uint64_t baseRtt);
+  RdmaClientHelper (uint16_t pg, Ipv4Address sip, Ipv4Address dip, uint16_t sport, uint16_t dport, uint64_t size, uint32_t win, uint64_t baseRtt, double endTime=-1);
 
   /**
    * Record an attribute to be set in each Application after it is is created.

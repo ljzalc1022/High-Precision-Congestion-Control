@@ -180,7 +180,7 @@ TypeId RdmaHw::GetTypeId (void)
 				MakeBooleanAccessor(&RdmaHw::m_enableMagic),
 				MakeBooleanChecker())
 		.AddTraceSource("Rx",
-				"A data packet has been received",
+				"A packet has been received",
 				MakeTraceSourceAccessor(&RdmaHw::m_rxTrace))
 		.AddTraceSource("Tx",
 				"A packet has been transmitted",
@@ -189,17 +189,7 @@ TypeId RdmaHw::GetTypeId (void)
 				"Trace the change of rate",
 				BooleanValue(false),
 				MakeBooleanAccessor(&RdmaHw::m_traceRate),
-				MakeBooleanChecker())
-		.AddAttribute("SetForceEndTime",
-				"Set a time when the rdma flow will be forced to shut down",
-				BooleanValue(false),
-				MakeBooleanAccessor(&RdmaHw::m_hasForceEndTime),
-				MakeBooleanChecker())
-		.AddAttribute("ForceEndTime",
-				"Force the rdma flow to end at the time",
-				UintegerValue(2000),   // millisecond
-				MakeUintegerAccessor(&RdmaHw::m_forceEndTime),
-				MakeUintegerChecker<uint32_t>());
+				MakeBooleanChecker());
 	return tid;
 }
 
@@ -245,7 +235,7 @@ Ptr<RdmaQueuePair> RdmaHw::GetQp(uint32_t dip, uint16_t sport, uint16_t pg){
 		return it->second;
 	return NULL;
 }
-void RdmaHw::AddQueuePair(uint64_t size, uint16_t pg, Ipv4Address sip, Ipv4Address dip, uint16_t sport, uint16_t dport, uint32_t win, uint64_t baseRtt, Callback<void> notifyAppFinish){
+void RdmaHw::AddQueuePair(uint64_t size, uint16_t pg, Ipv4Address sip, Ipv4Address dip, uint16_t sport, uint16_t dport, uint32_t win, uint64_t baseRtt, double endTime, Callback<void> notifyAppFinish){
 	// create qp
 	Ptr<RdmaQueuePair> qp = CreateObject<RdmaQueuePair>(pg, sip, dip, sport, dport);
 	qp->SetSize(size);
@@ -253,6 +243,12 @@ void RdmaHw::AddQueuePair(uint64_t size, uint16_t pg, Ipv4Address sip, Ipv4Addre
 	qp->SetBaseRtt(baseRtt);
 	qp->SetVarWin(m_var_win);
 	qp->SetAppNotifyCallback(notifyAppFinish);
+
+	if (endTime != -1) {
+		NS_ASSERT(endTime >= 0);
+		Simulator::Schedule(Seconds(endTime), &RdmaHw::QpComplete, this, qp);
+		std::cout << "qp will stop in " << endTime << " seconds" << std::endl;
+	}
 
 	// add qp
 	uint32_t nic_idx = GetNicIdxOfQp(qp);
@@ -322,7 +318,6 @@ void RdmaHw::DeleteRxQp(uint32_t dip, uint16_t pg, uint16_t dport){
 }
 
 int RdmaHw::ReceiveUdp(Ptr<Packet> p, CustomHeader &ch){
-	m_rxTrace(p);
 	uint8_t ecnbits = ch.GetIpv4EcnBits();
 
 	uint32_t payload_size = p->GetSize() - ch.GetSerializedSize();
@@ -338,6 +333,7 @@ int RdmaHw::ReceiveUdp(Ptr<Packet> p, CustomHeader &ch){
 
 	int x = ReceiverCheckSeq(ch.udp.seq, rxQp, payload_size);
 	if (x == 1 || x == 2){ //generate ACK or NACK
+		m_rxTrace(p, rxQp);
 		qbbHeader seqh;
 		seqh.SetSeq(rxQp->ReceiverNextExpectedSeq);
 		seqh.SetPG(ch.udp.pg);
@@ -435,7 +431,7 @@ int RdmaHw::ReceiveAck(Ptr<Packet> p, CustomHeader &ch){
 			uint32_t goback_seq = seq / m_chunk * m_chunk;
 			qp->Acknowledge(goback_seq);
 		}
-		if (qp->IsFinished() || (m_hasForceEndTime && Simulator::Now().GetMilliSeconds() > m_forceEndTime)){
+		if (qp->IsFinished()){
 			QpComplete(qp);
 		}
 	}
@@ -610,6 +606,7 @@ Ptr<Packet> RdmaHw::GetNxtPacket(Ptr<RdmaQueuePair> qp){
 }
 
 void RdmaHw::PktSent(Ptr<RdmaQueuePair> qp, Ptr<Packet> pkt, Time interframeGap){
+	m_txTrace(pkt, qp);
 	qp->lastPktSize = pkt->GetSize();
 	UpdateNextAvail(qp, interframeGap, pkt->GetSize());
 }
