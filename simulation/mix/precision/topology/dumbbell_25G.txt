@@ -1,0 +1,13 @@
+12 2 11
+10 11
+0 10 25Gbps 10us 0
+1 10 25Gbps 10us 0
+2 10 25Gbps 10us 0
+3 10 25Gbps 10us 0
+4 10 25Gbps 10us 0
+5 11 25Gbps 10us 0
+6 11 25Gbps 10us 0
+7 11 25Gbps 10us 0
+8 11 25Gbps 10us 0
+9 11 25Gbps 10us 0
+10 11 25Gbps 10us 0

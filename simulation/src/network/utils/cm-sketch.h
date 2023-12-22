@@ -4,6 +4,7 @@
 #include "ns3/simulator.h"
 #include "ns3/packet.h"
 #include "ns3/log.h"
+#include "ns3/random-variable-stream.h"
 #include <map>
 
 namespace ns3 {
@@ -38,6 +39,11 @@ public:
     double   m_miu;
     double   m_eta;
 
+    // For experiments about sketch percision
+    double   m_FP;  // possibility of false positive
+    double   m_FN;  // possibility of false negative
+    Ptr<UniformRandomVariable> m_uv;  // random variable generator
+
 public:
     static TypeId GetTypeId(void);
     CmSketch ();
@@ -69,6 +75,8 @@ private:
     
     uint32_t Hash(Ptr<Packet> item, uint32_t permutation) const;
     uint32_t HashFunction(uint32_t sip, uint32_t dip, uint16_t sport, uint16_t dport, uint16_t pg, uint32_t permutation) const;
+
+    bool RandomFault(bool re);
 };
 
 }

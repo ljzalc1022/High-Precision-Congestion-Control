@@ -53,7 +53,17 @@ TypeId CmSketch::GetTypeId(void)
             "The max proportion of uncontrolled flows in HHM_DYNAMIC",
             DoubleValue(0.45),
             MakeDoubleAccessor(&CmSketch::m_u),
-            MakeDoubleChecker<double>(0, 1))    
+            MakeDoubleChecker<double>(0, 1))   
+        .AddAttribute("FP",
+            "The possibility of false positive",
+            DoubleValue(0),
+            MakeDoubleAccessor(&CmSketch::m_FP),
+            MakeDoubleChecker<double>(0, 1))
+        .AddAttribute("FN",
+            "The possibility of false negative",
+            DoubleValue(0),
+            MakeDoubleAccessor(&CmSketch::m_FN),
+            MakeDoubleChecker<double>(0, 1)) 
         ;
     return tid;
 }
@@ -115,6 +125,8 @@ CmSketch::Init() {
     // Use subwindow 0 at the beginning
     pointer = 0;
 
+    m_uv = CreateObject<UniformRandomVariable> ();
+
     Simulator::Schedule(m_windowSize, &CmSketch::ClearWindow, this);
     m_card = 0;
 }
@@ -163,27 +175,27 @@ CmSketch::GetHeavyHitters (Ptr<Packet> item) {
 
     uint32_t alpha = GetCard();
     if(alpha == 0)
-        return true;
+        return RandomFault(true);
 
     uint64_t hh_thresh;
     switch (m_heavyhitterMode) {
 
         case HHM_NAIVE:
             // corner case: threshold < 0
-            if (total_txbytes / alpha < m_offset) return true;
+            if (total_txbytes / alpha < m_offset) return RandomFault(true);
 
             hh_thresh = total_txbytes / alpha - m_offset;
-            return (result >= hh_thresh);
+            return RandomFault(result >= hh_thresh);
         
         case HHM_DYNAMIC:
             // Threshold = u * C / N
             hh_thresh = m_u * total_txbytes / alpha;
 
-            // if (Simulator::Now().GetSeconds() > 2.045 && Simulator::Now().GetSeconds() < 2.060) {
+            // if (Simulator::Now().GetSeconds() > 2.01 && Simulator::Now().GetSeconds() < 2.02) {
             //     std::cout << Simulator::Now().GetSeconds() << " " << GetCard() << " " << total_txbytes
-            //               << " thresh:" << hh_thresh << std::endl;
+            //               << " thresh:" << hh_thresh << " result:" << result << std::endl;
             // }
-            return (result >= hh_thresh);
+            return RandomFault(result >= hh_thresh);
         
         case HHM_DYNAMIC_HPCC:
             // Threshold = B / N - ((miu - eta) * B) / ((N - 1) * (1 - eta * B / R(t)))
@@ -198,10 +210,10 @@ CmSketch::GetHeavyHitters (Ptr<Packet> item) {
                 dy_offset = (double)B / alpha - ((m_miu - m_eta) * B) / ((alpha - 1) * (1 - m_eta * B / total_txbytes));
 
             // corner case: threshold < 0
-            if (B / alpha < dy_offset) return true;
+            if (B / alpha < dy_offset) return RandomFault(true);
 
             hh_thresh = B / alpha - dy_offset;
-            return (result >= hh_thresh);
+            return RandomFault(result >= hh_thresh);
     }
 
 }
@@ -238,7 +250,7 @@ void CmSketch::ClearWindow()
 }
 
 uint32_t CmSketch::GetCard () {
-    double rate = (m_width - m_card) / m_width;
+    double rate = (m_width - m_card) / double(m_width);
     return m_width * log(1 / rate);
 }
 
@@ -317,6 +329,33 @@ void
 CmSketch::setQdiff(int32_t q)
 {
     m_qdiff = (q > m_qt) ? (q - m_qt) : 0;
+}
+
+bool 
+CmSketch::RandomFault(bool re) 
+{
+    // printf("In rf\n");
+    double u;
+    if (re == true) {
+        // printf("In rf: re = true\n");
+        if (m_FN > 0) {
+            u = m_uv->GetValue();
+            if (u <= m_FN) {
+                re = false;
+            }
+        }
+    } else {
+        // printf("FP: %lf\n", m_FP);
+        if (m_FP > 0) {
+            // printf("In m_FP > 0\n");
+            u = m_uv->GetValue();
+            // printf("u: %lf, FP: %lf\n", u, m_FP);
+            if (u <= m_FP) {
+                re = true;
+            }
+        }
+    }
+    return re;
 }
 
 }
