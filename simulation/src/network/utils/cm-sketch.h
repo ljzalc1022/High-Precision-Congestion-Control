@@ -25,7 +25,7 @@ public:
         HHM_DYNAMIC,            // hh_thresh = m_u * total / (card - 1)
         HHM_DYNAMIC_HPCC        // hh_thresh = total / card - dynamic_offset
     };
-    uint32_t m_heavyhitterMode;
+    heavyhitterMode_t m_heavyhitterMode;
 
     // Fixed offset
     uint64_t m_offset;
@@ -43,6 +43,14 @@ public:
     double   m_FP;  // possibility of false positive
     double   m_FN;  // possibility of false negative
     Ptr<UniformRandomVariable> m_uv;  // random variable generator
+
+    // Microburst detection strategy
+    enum microburstMode_t {
+        MB_NONE,
+        MB_NAIVE_HALF,
+        MB_NAIVE_ONE
+    };
+    microburstMode_t m_microburstMode;
 
 public:
     static TypeId GetTypeId(void);
@@ -71,12 +79,17 @@ private:
 
     Time m_lastWindowStartTime;
 
+    bool m_ableToGet{true};
+    bool m_updateMB{false};
+
     void UpdateCardinality(uint32_t old_v, uint32_t new_v);
     
     uint32_t Hash(Ptr<Packet> item, uint32_t permutation) const;
     uint32_t HashFunction(uint32_t sip, uint32_t dip, uint16_t sport, uint16_t dport, uint16_t pg, uint32_t permutation) const;
 
     bool RandomFault(bool re);
+
+    void ResetGet();
 };
 
 }

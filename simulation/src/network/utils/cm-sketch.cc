@@ -64,6 +64,13 @@ TypeId CmSketch::GetTypeId(void)
             DoubleValue(0),
             MakeDoubleAccessor(&CmSketch::m_FN),
             MakeDoubleChecker<double>(0, 1)) 
+        .AddAttribute("MicroburstMode",
+            "Different ways to detect and handle microburst",
+            EnumValue(MB_NONE),
+            MakeEnumAccessor(&CmSketch::m_microburstMode),
+            MakeEnumChecker(MB_NONE, "do nothing about microburst",
+                            MB_NAIVE_HALF, "simple detection and handle strategy with granularity 0.5 rtt",
+                            MB_NAIVE_ONE,  "simple detection and handle strategy with granularity 1.0 rtt"))
         ;
     return tid;
 }
@@ -165,6 +172,12 @@ bool
 CmSketch::GetHeavyHitters (Ptr<Packet> item) {
     NS_LOG_FUNCTION (this << item);
 
+    if (m_microburstMode != MB_NONE) {
+        if (!m_ableToGet) {
+            return false;
+        }
+    }
+
     uint64_t result = 0xffffffff;
     for (uint32_t i = 0; i < m_depth; ++i) {
         uint32_t pos = Hash(item, i) % m_width;
@@ -218,11 +231,85 @@ CmSketch::GetHeavyHitters (Ptr<Packet> item) {
 
 }
 
+void CmSketch::ResetGet()
+{
+    m_ableToGet = true;
+}
+
 void CmSketch::ClearWindow()
 {
     // if (Simulator::Now().GetSeconds() > 2.0100 && Simulator::Now().GetSeconds() < 2.0102) {
     //     std::cout << Simulator::Now().GetSeconds() << " " << GetCard() << " " << total_txbytes << std::endl;
     // }
+    bool flowEnded = false;
+    
+    switch (m_microburstMode)
+    {
+    case MB_NONE:
+        break;
+    
+    case MB_NAIVE_HALF:
+        for (uint32_t i = 0; i < m_width; ++i) {
+            uint64_t currentRTT = counter_split[pointer][0][i];
+            uint64_t lastRTT = counter_split[(pointer + m_granularity - 1) % m_granularity][0][i]; 
+
+            // if (lastRTT != 0 || currentRTT != 0) {
+            //     if (Simulator::Now().GetSeconds() > 2.0045 && Simulator::Now().GetSeconds() < 2.0060) {
+            //         std::cout << Simulator::Now().GetSeconds() << " " << i << " " << "lastRTT: " << lastRTT 
+            //                   << " currentRTT" << currentRTT << std::endl;
+            //     }                
+            // }
+
+            if (lastRTT >= 500 && currentRTT <= 200) {
+                flowEnded = true;
+            }
+        }
+
+        if (flowEnded) {
+            m_ableToGet = false;
+            Simulator::Schedule(m_windowSize + m_windowSize , &CmSketch::ResetGet, this);
+        }
+
+        break;
+
+    case MB_NAIVE_ONE:
+        // m_updateMB is used to make sure that microburst detection is activated every 2 window (= 1 rtt)
+        if (!m_updateMB) {
+            m_updateMB = true;
+        }
+        else {
+
+            for (uint32_t i = 0; i < m_width; ++i) {
+                uint64_t currentRTT = counter_split[pointer][0][i] 
+                                    + counter_split[(pointer + m_granularity - 1) % m_granularity][0][i];
+                uint64_t lastRTT = counter_split[(pointer + m_granularity - 2) % m_granularity][0][i] 
+                                + counter_split[(pointer + m_granularity - 3) % m_granularity][0][i];
+
+                // if (lastRTT != 0 || currentRTT != 0) {
+                //     if (Simulator::Now().GetSeconds() > 2.0045 && Simulator::Now().GetSeconds() < 2.0060) {
+                //         std::cout << Simulator::Now().GetSeconds() << " " << i << " " << "lastRTT: " << lastRTT 
+                //                   << " currentRTT" << currentRTT << std::endl;
+                //     }                
+                // }
+
+                if (lastRTT >= 500 && currentRTT <= 200) {
+                    flowEnded = true;
+                }
+            }
+
+            m_updateMB = false;
+        }
+
+        if (flowEnded) {
+            m_ableToGet = false;
+            Simulator::Schedule(m_windowSize + m_windowSize , &CmSketch::ResetGet, this);
+        }
+
+        break;
+
+    default:
+        break;
+    }
 
     // update the pointer
     pointer = (pointer + 1) % m_granularity;

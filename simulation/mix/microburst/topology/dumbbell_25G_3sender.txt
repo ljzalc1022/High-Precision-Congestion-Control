@@ -1,0 +1,9 @@
+8 2 7
+6 7
+0 6 25Gbps 10us 0
+1 6 25Gbps 10us 0
+2 6 25Gbps 10us 0
+3 7 25Gbps 10us 0
+4 7 25Gbps 10us 0
+5 7 25Gbps 10us 0
+6 7 25Gbps 10us 0

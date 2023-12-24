@@ -189,7 +189,20 @@ TypeId RdmaHw::GetTypeId (void)
 				"Trace the change of rate",
 				BooleanValue(false),
 				MakeBooleanAccessor(&RdmaHw::m_traceRate),
-				MakeBooleanChecker());
+				MakeBooleanChecker())
+		.AddAttribute("TraceRateStartTime",
+				"The time to start tracing the change of rate",
+				DoubleValue(0.0),
+				MakeDoubleAccessor(&RdmaHw::m_traceStartTime),
+				MakeDoubleChecker<double>())
+		.AddAttribute("TraceRateEndTime",
+				"The time to end tracing the change of rate",
+				DoubleValue(0.0),
+				MakeDoubleAccessor(&RdmaHw::m_traceEndTime),
+				MakeDoubleChecker<double>())
+		.AddTraceSource("RateChange",
+				"Rate changes",
+				MakeTraceSourceAccessor(&RdmaHw::m_rateTrace));
 	return tid;
 }
 
@@ -629,9 +642,14 @@ void RdmaHw::ChangeRate(Ptr<RdmaQueuePair> qp, DataRate new_rate){
 	uint32_t nic_idx = GetNicIdxOfQp(qp);
 	m_nic[nic_idx].dev->UpdateNextAvail(qp->m_nextAvail);
 	#endif
+
+	m_rateTrace(qp->m_rate.GetBitRate(), new_rate.GetBitRate());
 	if (m_traceRate) {
-		std::cout << "Changing rate from " << qp->m_rate.GetBitRate() << " to " << new_rate.GetBitRate()
-			      << " at " << Simulator::Now().GetNanoSeconds() << std::endl;
+		double time = Simulator::Now().GetSeconds();
+		// std::cout << time << " " << m_traceStartTime << " " << m_traceEndTime << std::endl;
+		if (time >= m_traceStartTime && time <= m_traceEndTime)
+			std::cout << Simulator::Now().GetNanoSeconds() << ": rate change " << qp->m_rate.GetBitRate() <<
+					     " -> " << new_rate.GetBitRate() << std::endl;
 	}
 	// change to new rate
 	qp->m_rate = new_rate;
@@ -888,7 +906,12 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 						qp->hp.u = (qp->hp.u * (qp->m_baseRtt - dt) + U * dt) / double(qp->m_baseRtt);
 						max_c = qp->hp.u / m_targetUtil;
 					}
-
+					if (m_traceRate) {
+						double time = Simulator::Now().GetSeconds();
+						// std::cout << time << " " << m_traceStartTime << " " << m_traceEndTime << std::endl;
+						if (time >= m_traceStartTime && time <= m_traceEndTime)
+							std::cout << "max_c: " << max_c << std::endl;
+					}	
 					if (max_c >= 1 || qp->hp.m_incStage >= m_miThresh){
 						new_rate = qp->hp.m_curRate / max_c + m_rai;
 						new_incStage = 0;
@@ -971,7 +994,14 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 					// 		qp->hp.m_incStage = new_incStage;
 					// 	}
 					// }else{
-						qp->hp.m_curRate = new_rate;
+						if (m_traceRate) {
+							double time = Simulator::Now().GetSeconds();
+							// std::cout << time << " " << m_traceStartTime << " " << m_traceEndTime << std::endl;
+							if (time >= m_traceStartTime && time <= m_traceEndTime)
+								std::cout << std::endl << Simulator::Now().GetNanoSeconds() << ": curRate change " << qp->hp.m_curRate.GetBitRate() <<
+											" -> " << new_rate.GetBitRate() << std::endl;
+						}	
+						qp->hp.m_curRate = new_rate;					
 						qp->hp.m_incStage = new_incStage;
 					// }
 				}

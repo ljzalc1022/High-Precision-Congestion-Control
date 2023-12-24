@@ -3,14 +3,14 @@ USE_DYNAMIC_PFC_THRESHOLD 1
 
 PACKET_PAYLOAD_SIZE 1000
 
-TOPOLOGY_FILE mix/microburst/topo.txt
-FLOW_FILE mix/microburst/flow.txt
-TRACE_FILE mix/microburst/magic_trace.txt
-TRACE_OUTPUT_FILE mix/microburst/magic_mix.tr
-FCT_OUTPUT_FILE mix/microburst/magic_fct.txt
-PFC_OUTPUT_FILE mix/microburst/magic_pfc.txt
+TOPOLOGY_FILE mix/microburst/topology/dumbbell_25G_3sender.txt
+FLOW_FILE mix/microburst/flow_distribution/long_2_burst_1.txt
+TRACE_FILE mix/microburst/trace.txt
+TRACE_OUTPUT_FILE mix/microburst/mix.tr
+FCT_OUTPUT_FILE experiment-results/hpcc/microburst/long_2_burst_1/mb_naive_1.0rtt/fct.txt
+PFC_OUTPUT_FILE mix/microburst/pfc.txt
 
-SIMULATOR_STOP_TIME 2.015
+SIMULATOR_STOP_TIME 2.01
 
 CC_MODE 3
 ALPHA_RESUME_INTERVAL 1
@@ -47,15 +47,31 @@ ACK_HIGH_PRIO 0
 
 LINK_DOWN 0 0 0
 
-ENABLE_TRACE 1
+ENABLE_TRACE 0
 
 KMAX_MAP 3 25000000000 400 50000000000 800 100000000000 1600
 KMIN_MAP 3 25000000000 100 50000000000 200 100000000000 400
 PMAX_MAP 3 25000000000 0.2 50000000000 0.2 100000000000 0.2
 BUFFER_SIZE 32
-QLEN_MON_FILE mix/microburst/magic_qlen.txt
-QLEN_MON_START 2009000000
+QLEN_MON_FILE mix/microburst/qlen.txt
+QLEN_MON_START 2011000000
 QLEN_MON_END 2014000000
 
 ENABLE_SKETCH 1
 ENABLE_MAGIC 1
+
+SKETCH_DEPTH 2
+SKETCH_WIDTH 65537
+SKETCH_GRANULARITY 5
+SKETCH_WINDOW_SIZE 0.5
+
+MAGIC_HH_MODE 1
+MAGIC_U 1.00
+
+MAGIC_MB_MODE 2
+
+TRACE_RATE 0
+TRACE_RATE_START 2.0050
+TRACE_RATE_END 2.0060
+
+OUTPUT_FOLDER experiment-results/hpcc/microburst/long_2_burst_1/mb_naive_1.0rtt/
