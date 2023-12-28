@@ -7,7 +7,7 @@ TOPOLOGY_FILE mix/fat/topology/fat_25G_100G_10us.txt
 FLOW_FILE mix/fat/flow_distribution/WebSearch_25G_30%_0.1s.txt
 TRACE_FILE mix/fat/trace.txt
 TRACE_OUTPUT_FILE mix/fat/mix.tr
-FCT_OUTPUT_FILE experiment-results/hpcc/fat/25G_30L/0.1s/dynamic_u0.6/fct.txt
+FCT_OUTPUT_FILE experiment-results/hpcc/fat/25G_30L/0.1s/dynamic_u0.45_FN_70/fct.txt
 PFC_OUTPUT_FILE mix/fat/pfc.txt
 
 SIMULATOR_STOP_TIME 2.5
@@ -47,7 +47,7 @@ ACK_HIGH_PRIO 0
 
 LINK_DOWN 0 0 0
 
-ENABLE_TRACE 0
+ENABLE_TRACE 1
 
 KMAX_MAP 4 25000000000 400 50000000000 800 100000000000 1600 400000000000 6400
 KMIN_MAP 4 25000000000 100 50000000000 200 100000000000 400 400000000000 1600
@@ -66,5 +66,8 @@ SKETCH_GRANULARITY 5
 SKETCH_WINDOW_SIZE 0.5
 
 MAGIC_HH_MODE 1
-MAGIC_U 0.6
-QLEN_OUTPUT_FILE experiment-results/hpcc/fat/25G_30L/0.1s/dynamic_u0.6/qlen.dat
+MAGIC_U 0.45
+
+FN 0.30
+
+QLEN_OUTPUT_FILE experiment-results/hpcc/fat/25G_30L/0.1s/dynamic_u0.45_FN_70/qlen.dat

@@ -80,6 +80,7 @@ double sketch_window_size = 0.5;
 uint32_t magic_hh_mode = 0;
 uint64_t magic_offset = 0;
 double magic_u = 0.45;
+double FP = 0, FN = 0;
 std::string qlen_output_file = "qlen.txt";
 
 std::ofstream log_output;
@@ -741,7 +742,13 @@ int main(int argc, char *argv[])
 				log_output.open(log_output_file, std::ofstream::out | std::ofstream::app);
 				std::cout.rdbuf(log_output.rdbuf());
 				std::cout << "LOG_OUTPUT_FILE\t\t\t\t" << log_output_file << '\n';
-			}
+			}else if (key.compare("FP") == 0){
+                conf >> FP;
+                std::cout << "FP\t\t\t\t" << FP << '\n';
+            }else if (key.compare("FN") == 0){
+                conf >> FN;
+                std::cout << "FN\t\t\t\t" << FN << '\n';
+            }
 			fflush(stdout);
 		}
 		conf.close();
@@ -767,6 +774,8 @@ int main(int argc, char *argv[])
     Config::SetDefault("ns3::CmSketch::Granularity", UintegerValue(sketch_granulatiry));
     Config::SetDefault("ns3::CmSketch::HeavyhitterMode", EnumValue(magic_hh_mode));
     Config::SetDefault("ns3::CmSketch::u", DoubleValue(magic_u));
+    Config::SetDefault("ns3::CmSketch::FP", DoubleValue(FP));
+    Config::SetDefault("ns3::CmSketch::FN", DoubleValue(FN));
 
 	// set int_multi
 	IntHop::multi = int_multi;
