@@ -6,6 +6,7 @@
 #include "ns3/log.h"
 #include "ns3/random-variable-stream.h"
 #include <map>
+#include <unordered_map>
 
 namespace ns3 {
 
@@ -79,6 +80,8 @@ private:
 
     Time m_lastWindowStartTime;
 
+    std::unordered_map<uint32_t, double> m_hash2rv;
+
     bool m_ableToGet{true};
     bool m_updateMB{false};
 
@@ -87,7 +90,7 @@ private:
     uint32_t Hash(Ptr<Packet> item, uint32_t permutation) const;
     uint32_t HashFunction(uint32_t sip, uint32_t dip, uint16_t sport, uint16_t dport, uint16_t pg, uint32_t permutation) const;
 
-    bool RandomFault(bool re);
+    bool RandomFault(bool re, uint32_t hash);
 
     void ResetGet();
 };

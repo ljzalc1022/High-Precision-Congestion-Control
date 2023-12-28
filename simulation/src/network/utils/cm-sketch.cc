@@ -186,19 +186,21 @@ CmSketch::GetHeavyHitters (Ptr<Packet> item) {
         }
     }
 
+    // uint32_t hash_0 = Hash(item, 0) % m_width;
+
     uint32_t alpha = GetCard();
     if(alpha == 0)
-        return RandomFault(true);
+        return RandomFault(true, hash_0);
 
     uint64_t hh_thresh;
     switch (m_heavyhitterMode) {
 
         case HHM_NAIVE:
             // corner case: threshold < 0
-            if (total_txbytes / alpha < m_offset) return RandomFault(true);
+            if (total_txbytes / alpha < m_offset) return RandomFault(true, hash_0);
 
             hh_thresh = total_txbytes / alpha - m_offset;
-            return RandomFault(result >= hh_thresh);
+            return RandomFault(result >= hh_thresh, hash_0);
         
         case HHM_DYNAMIC:
             // Threshold = u * C / N
@@ -208,7 +210,7 @@ CmSketch::GetHeavyHitters (Ptr<Packet> item) {
             //     std::cout << Simulator::Now().GetSeconds() << " " << GetCard() << " " << total_txbytes
             //               << " thresh:" << hh_thresh << " result:" << result << std::endl;
             // }
-            return RandomFault(result >= hh_thresh);
+            return RandomFault(result >= hh_thresh, hash_0);
         
         case HHM_DYNAMIC_HPCC:
             // Threshold = B / N - ((miu - eta) * B) / ((N - 1) * (1 - eta * B / R(t)))
@@ -223,10 +225,10 @@ CmSketch::GetHeavyHitters (Ptr<Packet> item) {
                 dy_offset = (double)B / alpha - ((m_miu - m_eta) * B) / ((alpha - 1) * (1 - m_eta * B / total_txbytes));
 
             // corner case: threshold < 0
-            if (B / alpha < dy_offset) return RandomFault(true);
+            if (B / alpha < dy_offset) return RandomFault(true, hash_0);
 
             hh_thresh = B / alpha - dy_offset;
-            return RandomFault(result >= hh_thresh);
+            return RandomFault(result >= hh_thresh, hash_0);
     }
 
 }
@@ -329,6 +331,10 @@ void CmSketch::ClearWindow()
             uint32_t old_v = counter[i][j];
             uint32_t new_v = counter[i][j] - delta;
             if(!i) UpdateCardinality(old_v, new_v);
+            // // erase the hashValue->randomVariable mapping entry if a flow ends
+            // if(!i && (old_v != 0 && new_v == 0)) {
+            //     m_hash2rv.erase(j);
+            // }
             counter[i][j] = new_v;
         }
     }
@@ -419,7 +425,7 @@ CmSketch::setQdiff(int32_t q)
 }
 
 bool 
-CmSketch::RandomFault(bool re) 
+CmSketch::RandomFault(bool re, uint32_t hash) 
 {
     // printf("In rf\n");
     double u;
@@ -443,6 +449,41 @@ CmSketch::RandomFault(bool re)
         }
     }
     return re;
+    // double rv;
+
+    // if (re == true && m_FN == 0) {
+    //     return true;
+    // }
+    // if (re == false && m_FP == 0) {
+    //     return false;
+    // }
+
+    // // record a map: hashValue->randomVariable(in [0, 1]) 
+    // // to simulate per-flow FP/FN
+    // auto search = m_hash2rv.find(hash);
+    // if (search != m_hash2rv.end()) {
+    //     rv = search->second;
+    //     // printf("hash: %u, rv: %lf\n", hash, rv);
+    // } else {
+    //     rv = m_uv->GetValue();
+    //     m_hash2rv.insert(std::make_pair(hash, rv));
+    //     // printf("hash: %u, rv: %lf, new inserted\n", hash, rv);
+    // }
+
+    // // Now the code use a same rv for each flow to determine whether FP&FN 
+    // // should happen or not. It is feasible because now we only manually set
+    // // either FN or FP in current experimentes. But in fact, if in the future 
+    // // we need to simulate FN and FP at the same time in a single experiment, 
+    // // we should **maintain one rv for FN and another for FP** per flow.
+    // if (re == true && rv <= m_FN) {
+    //     return false;
+    // }
+    // else if (re == false && rv <= m_FP) {
+    //     return true;
+    // }
+    // else {
+    //     return re;
+    // }
 }
 
 }
