@@ -186,7 +186,7 @@ CmSketch::GetHeavyHitters (Ptr<Packet> item) {
         }
     }
 
-    // uint32_t hash_0 = Hash(item, 0) % m_width;
+    uint32_t hash_0 = Hash(item, 0) % m_width;
 
     uint32_t alpha = GetCard();
     if(alpha == 0)
