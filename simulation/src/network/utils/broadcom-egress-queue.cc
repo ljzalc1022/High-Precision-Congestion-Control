@@ -179,6 +179,58 @@ namespace ns3 {
 		return 0;
 	}
 
+	Ptr<Packet>
+		BEgressQueue::DoDequeuePrio(bool paused[])
+	{
+		NS_LOG_FUNCTION(this);
+
+		if (m_bytesInQueueTotal == 0)
+		{
+			NS_LOG_LOGIC("Queue empty");
+			return 0;
+		}
+		bool found = false;
+		uint32_t qIndex;
+
+		if (m_queues[0]->GetNPackets() > 0)
+		{
+			found = true;
+			qIndex = 0;
+		}
+		else
+		{
+			if (!found)
+			{
+				for (uint32_t i = 0; i < m_RRseqLen; i++) {
+					m_RRpointer = (m_RRpointer + 1) % m_RRseqLen;
+					qIndex = m_RRseq[m_RRpointer];
+					if (!paused[qIndex] && m_queues[qIndex]->GetNPackets() > 0)
+					{
+						found = true;
+						break;
+					}
+				}
+			}
+		}
+		if (found)
+		{
+			Ptr<Packet> p = m_queues[qIndex]->Dequeue();
+			m_traceBeqDequeue(p, qIndex);
+			m_bytesInQueueTotal -= p->GetSize();
+			m_bytesInQueue[qIndex] -= p->GetSize();
+			// if (qIndex != 0)
+			// {
+			// 	m_rrlast = qIndex;
+			// }
+			m_qlast = qIndex;
+			NS_LOG_LOGIC("Popped " << p);
+			NS_LOG_LOGIC("Number bytes " << m_bytesInQueueTotal);
+			return p;			
+		}
+		NS_LOG_LOGIC("Nothing can be sent");
+		return 0;
+	}
+
 	bool
 		BEgressQueue::Enqueue(Ptr<Packet> p, uint32_t qIndex)
 	{
@@ -208,6 +260,32 @@ namespace ns3 {
 	{
 		NS_LOG_FUNCTION(this);
 		Ptr<Packet> packet = DoDequeueRR(paused);
+		if (packet != 0)
+		{
+			NS_ASSERT(m_nBytes >= packet->GetSize());
+			NS_ASSERT(m_nPackets > 0);
+
+			if (m_enableSketch)
+			{
+				if (IsDataPacket(packet))
+				{
+					m_sketch->UpdateTxBytes(packet);
+				}
+			}
+
+			m_nBytes -= packet->GetSize();
+			m_nPackets--;
+			NS_LOG_LOGIC("m_traceDequeue (packet)");
+			m_traceDequeue(packet);
+		}
+		return packet;
+	}
+
+	Ptr<Packet>
+		BEgressQueue::DequeuePrio(bool paused[])
+	{
+		NS_LOG_FUNCTION(this);
+		Ptr<Packet> packet = DoDequeuePrio(paused);
 		if (packet != 0)
 		{
 			NS_ASSERT(m_nBytes >= packet->GetSize());
@@ -295,6 +373,12 @@ namespace ns3 {
 		BEgressQueue::SetRate(uint64_t rate)
 	{
 		m_rate = rate;
+	}
+
+	double
+		BEgressQueue::GetSmallFlowPortion()
+	{
+		return m_sketch->GetSmallFlowPortion();
 	}
 
 	bool 

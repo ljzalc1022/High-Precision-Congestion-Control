@@ -296,7 +296,8 @@ namespace ns3 {
 			}
 			return;
 		}else{   //switch, doesn't care about qcn, just send
-			p = m_queue->DequeueRR(m_paused);		//this is round-robin
+			// p = m_queue->DequeueRR(m_paused);		//this is round-robin
+			p = m_queue->DequeuePrio(m_paused);
 			if (p != 0){
 				m_snifferTrace(p);
 				m_promiscSnifferTrace(p);

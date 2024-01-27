@@ -145,6 +145,10 @@ uint32_t flow_num;
 void ReadFlowInput(){
 	if (flow_input.idx < flow_num){
 		flowf >> flow_input.src >> flow_input.dst >> flow_input.pg >> flow_input.dport >> flow_input.maxPacketCount >> flow_input.start_time;
+		// if small flow, change the priority field to another value (default = 3)
+		if (flow_input.maxPacketCount <= 100000) { 
+			flow_input.pg = 1;
+		}
 		NS_ASSERT(n.Get(flow_input.src)->GetNodeType() == 0 && n.Get(flow_input.dst)->GetNodeType() == 0);
 	}
 }

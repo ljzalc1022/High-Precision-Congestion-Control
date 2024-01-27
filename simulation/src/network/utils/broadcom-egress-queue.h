@@ -41,6 +41,7 @@ namespace ns3 {
 		virtual ~BEgressQueue();
 		bool Enqueue(Ptr<Packet> p, uint32_t qIndex);
 		Ptr<Packet> DequeueRR(bool paused[]);
+		Ptr<Packet> DequeuePrio(bool paused[]);
 		uint32_t GetNBytes(uint32_t qIndex) const;
 		uint32_t GetNBytesTotal() const;
 		uint32_t GetLastQueue();
@@ -49,9 +50,17 @@ namespace ns3 {
 		TracedCallback<Ptr<const Packet>, uint32_t> m_traceBeqEnqueue;
 		TracedCallback<Ptr<const Packet>, uint32_t> m_traceBeqDequeue;
 
+		double GetSmallFlowPortion();
+
 	private:
 		bool DoEnqueue(Ptr<Packet> p, uint32_t qIndex);
 		Ptr<Packet> DoDequeueRR(bool paused[]);
+		Ptr<Packet> DoDequeuePrio(bool paused[]);
+		uint32_t m_RRpointer{0};
+		uint32_t m_RRseq[5] = {1, 1, 1, 1, 3}; // expD 80% -- 20%
+		uint32_t m_RRseqLen{5};
+		// uint32_t m_RRseq[10] = {1, 1, 1, 3, 1, 1, 3, 1, 1, 3}; // expE 70% -- 30%
+		// uint32_t m_RRseqLen{10};		
 		//for compatibility
 		virtual bool DoEnqueue(Ptr<Packet> p);
 		virtual Ptr<Packet> DoDequeue(void);
