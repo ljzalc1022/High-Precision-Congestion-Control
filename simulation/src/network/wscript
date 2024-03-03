@@ -62,6 +62,8 @@ def build(bld):
         'utils/leaky-bucket.cc',
 		'utils/custom-header.cc',
 		'utils/int-header.cc',
+        'utils/int-tag.cc',
+        'utils/my-sketch.cc',
         ]
 
     network_test = bld.create_ns3_module_test_library('network')
@@ -143,6 +145,8 @@ def build(bld):
         'utils/leaky-bucket.h',
 		'utils/custom-header.h',
 		'utils/int-header.h',
+        'utils/int-tag.h',
+        'utils/my-sketch.h',
         ]
 
     if (bld.env['ENABLE_EXAMPLES']):

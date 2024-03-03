@@ -66,5 +66,6 @@
         "memory_resource": "cpp",
         "random": "cpp",
         "string": "cpp"
-    }
+    },
+    "C_Cpp.default.compilerPath": "/usr/bin/g++"
 }

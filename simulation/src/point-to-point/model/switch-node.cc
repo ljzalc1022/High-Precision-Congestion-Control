@@ -11,7 +11,7 @@
 #include "ppp-header.h"
 #include "ns3/int-header.h"
 #include <cmath>
-#include "ns3/bigflow-tag.h"
+#include "ns3/int-tag.h"
 
 namespace ns3 {
 
@@ -222,10 +222,11 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 			IntHeader *ih = (IntHeader*)&buf[PppHeader::GetStaticSize() + 20 + 8 + 6]; // ppp, ip, udp, SeqTs, INT
 			Ptr<QbbNetDevice> dev = DynamicCast<QbbNetDevice>(m_devices[ifIndex]);
 			if (m_ccMode == 3){ // HPCC
-				BigflowTag tag;
-				bool isBigflow = p->FindFirstMatchingByteTag(tag);
+				IntTag tag;
+				p->FindFirstMatchingByteTag(tag);
 				p->RemoveAllByteTags();
-				ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate(), isBigflow);
+				ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate(), 
+							tag.m_isBigFlow, tag.m_Rb);
 			}else if (m_ccMode == 10){ // HPCC-PINT
 				uint64_t t = Simulator::Now().GetTimeStep();
 				uint64_t dt = t - m_lastPktTs[ifIndex];

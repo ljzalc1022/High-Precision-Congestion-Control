@@ -26,7 +26,7 @@
 #include "ns3/point-to-point-net-device.h"
 #include "ns3/event-id.h"
 #include "ns3/bigflow-tag.h"
-#include "ns3/cm-sketch.h"
+#include "ns3/my-sketch.h"
 
 namespace ns3 {
 
@@ -50,7 +50,7 @@ namespace ns3 {
 		TracedCallback<Ptr<const Packet>, uint32_t> m_traceBeqEnqueue;
 		TracedCallback<Ptr<const Packet>, uint32_t> m_traceBeqDequeue;
 
-		double GetSmallFlowPortion();
+		// double GetSmallFlowPortion();
 
 	private:
 		bool DoEnqueue(Ptr<Packet> p, uint32_t qIndex);
@@ -73,7 +73,7 @@ namespace ns3 {
 		std::vector<Ptr<Queue> > m_queues; // uc queues
 
 		bool m_enableSketch;
-		Ptr<CmSketch> m_sketch;
+		Ptr<MySketch> m_sketch;
 		bool CheckCongestion() const;
 		bool IsDataPacket(Ptr<Packet> p) const;
 		uint64_t m_rate;

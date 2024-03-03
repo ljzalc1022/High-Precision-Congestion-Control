@@ -94,25 +94,19 @@ namespace ns3 {
 					// Create a new sketch for the BEgressQueue if there doesn't exist one
 					if (m_sketch == nullptr) 
 					{
-						// m_sketch = new CmSketch();
-						m_sketch = CreateObject<CmSketch>();
+						m_sketch = CreateObject<MySketch>();
 						m_sketch->Init();
-						m_sketch->setRate(m_rate);
+						m_sketch->setTh(m_rate / 10);
 					}
-					m_sketch->UpdateCounter(p);
-					m_sketch->setQdiff(m_bytesInQueueTotal);
 					// std::cout << "packet inserted" << std::endl;
 					if (CheckCongestion())
 					{
 						// std::cout << "Congestion occurs!" << std::endl;
-						if (m_sketch->GetHeavyHitters(p))
-						{
-							// std::cout << "Bigflow Tagged in queue!" << std::endl;
-							BigflowTag tag;
-							NS_ASSERT(p->FindFirstMatchingByteTag(tag) == false);
-							p->AddByteTag(tag);
-							NS_ASSERT(p->FindFirstMatchingByteTag(tag) == true);
-						}
+						IntTag tag;
+						m_sketch->Update(p, tag);
+						NS_ASSERT(p->FindFirstMatchingByteTag(tag) == false);
+						p->AddByteTag(tag);
+						NS_ASSERT(p->FindFirstMatchingByteTag(tag) == true);
 					}
 				}
 			}
@@ -265,14 +259,6 @@ namespace ns3 {
 			NS_ASSERT(m_nBytes >= packet->GetSize());
 			NS_ASSERT(m_nPackets > 0);
 
-			if (m_enableSketch)
-			{
-				if (IsDataPacket(packet))
-				{
-					m_sketch->UpdateTxBytes(packet);
-				}
-			}
-
 			m_nBytes -= packet->GetSize();
 			m_nPackets--;
 			NS_LOG_LOGIC("m_traceDequeue (packet)");
@@ -290,14 +276,6 @@ namespace ns3 {
 		{
 			NS_ASSERT(m_nBytes >= packet->GetSize());
 			NS_ASSERT(m_nPackets > 0);
-
-			if (m_enableSketch)
-			{
-				if (IsDataPacket(packet))
-				{
-					m_sketch->UpdateTxBytes(packet);
-				}
-			}
 
 			m_nBytes -= packet->GetSize();
 			m_nPackets--;
@@ -375,11 +353,11 @@ namespace ns3 {
 		m_rate = rate;
 	}
 
-	double
-		BEgressQueue::GetSmallFlowPortion()
-	{
-		return m_sketch->GetSmallFlowPortion();
-	}
+	// double
+	// 	BEgressQueue::GetSmallFlowPortion()
+	// {
+	// 	return m_sketch->GetSmallFlowPortion();
+	// }
 
 	bool 
 		BEgressQueue::CheckCongestion() const

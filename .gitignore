@@ -7,3 +7,6 @@ simulation/log.txt
 simulation/*.txt
 
 */mix.tr
+
+.vscode/
+.python-version
