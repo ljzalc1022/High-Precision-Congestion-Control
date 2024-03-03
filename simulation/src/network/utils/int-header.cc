@@ -9,14 +9,22 @@ uint32_t IntHop::multi = 1;
 IntHeader::Mode IntHeader::mode = NONE;
 int IntHeader::pint_bytes = 2;
 
-IntHeader::IntHeader() : nhop(0), bigflowMark(0) {
+IntHeader::IntHeader() : 
+	// nhop(0), bigflowMark(0), portion{0} 
+	nhop(0)
+	, magic_option(0)
+{
 	for (uint32_t i = 0; i < maxHop; i++)
 		hop[i] = {0};
+	// for (uint32_t i = 0; i < maxHop; i++)
+	// 	portion[i].p = {0};
 }
 
 uint32_t IntHeader::GetStaticSize(){
 	if (mode == NORMAL){
-		return sizeof(hop) + sizeof(nhop) + sizeof(bigflowMark);
+		// return sizeof(hop) + sizeof(nhop) + sizeof(bigflowMark) + sizeof(portion);
+		return sizeof(hop) + sizeof(nhop) + sizeof (magic_option);
+		// return sizeof(hop) + sizeof(nhop);
 	}else if (mode == TS){
 		return sizeof(ts);
 	}else if (mode == PINT){
@@ -26,14 +34,15 @@ uint32_t IntHeader::GetStaticSize(){
 	}
 }
 
-void IntHeader::PushHop(uint64_t time, uint64_t bytes, uint32_t qlen, uint64_t rate, bool isBigflow){
+void IntHeader::PushHop(uint64_t time, uint64_t bytes, uint32_t qlen, uint64_t rate, bool isBigflow, uint16_t p){
 	// only do this in INT mode
 	if (mode == NORMAL){
 		uint32_t idx = nhop % maxHop;
 		hop[idx].Set(time, bytes, qlen, rate);
 		hop[idx].bigflow = isBigflow ? 1 : 0;
 		nhop++;
-		bigflowMark = isBigflow ? 1 : bigflowMark;
+		magic_option |= (isBigflow ? 1 : 0);
+		magic_option |= ((p % 8) << (3 * idx + 1));
 	}
 }
 
@@ -45,7 +54,12 @@ void IntHeader::Serialize (Buffer::Iterator start) const{
 			i.WriteU32(hop[j].buf[1]);
 		}
 		i.WriteU16(nhop);
-		i.WriteU16(bigflowMark);
+		// i.WriteU16(bigflowMark);
+		i.WriteU16(magic_option);
+		// for (uint32_t j = 0; j < maxHop; j++){
+		// 	i.WriteU32(portion[j].buf);
+		// }
+		// i.WriteU32(portion);
 	}else if (mode == TS){
 		i.WriteU64(ts);
 	}else if (mode == PINT){
@@ -64,7 +78,12 @@ uint32_t IntHeader::Deserialize (Buffer::Iterator start){
 			hop[j].buf[1] = i.ReadU32();
 		}
 		nhop = i.ReadU16();
-		bigflowMark = i.ReadU16();
+		magic_option = i.ReadU16();
+		// bigflowMark = i.ReadU16();
+		// for (uint32_t j = 0; j < maxHop; j++){
+		// 	portion[j].buf = i.ReadU32();
+		// };
+		// portion = i.ReadU32();
 	}else if (mode == TS){
 		ts = i.ReadU64();
 	}else if (mode == PINT){

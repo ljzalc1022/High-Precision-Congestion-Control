@@ -169,6 +169,7 @@ namespace ns3 {
 			if (qIndex != 0)
 			{
 				m_rrlast = qIndex;
+				// NS_ASSERT(qIndex == 1 || qIndex == 3);
 			}
 			m_qlast = qIndex;
 			NS_LOG_LOGIC("Popped " << p);

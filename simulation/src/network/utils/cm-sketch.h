@@ -67,6 +67,8 @@ public:
     void setRate(uint64_t rate);
     void setQdiff(int32_t q);
 
+    double GetSmallFlowPortion();
+
 private:
     // Measured when a packet is enqueued
     uint64_t *** counter_split;     
@@ -93,6 +95,11 @@ private:
     bool RandomFault(bool re, uint32_t hash);
 
     void ResetGet();
+
+    double m_smallFlowPortion;
+    // std::unordered_map<uint32_t, uint32_t> m_flowkey2window;
+
+    // uint32_t GetFlowkey(uint32_t sip, uint32_t dip, uint16_t sport, uint16_t dport, uint16_t pg);
 };
 
 }

@@ -361,6 +361,18 @@ void PrintProgress()
     Simulator::Schedule(progressInterval, &PrintProgress);
 }
 
+bool trace_rate = false;
+double trace_rate_start, trace_rate_end;
+
+std::ofstream txRate[5];
+void TraceRate(std::size_t index, uint64_t old_rate, uint64_t new_rate, double c)
+{
+	double time = Simulator::Now().GetSeconds();
+
+	if (time >= trace_rate_start && time <= trace_rate_end)
+		txRate[index] << time << " " << old_rate << " " << new_rate << " " << c << std::endl;
+}
+
 // Measure throughput and goodput
 uint64_t txBytes[5];
 std::ofstream Thpt[5];
@@ -385,7 +397,8 @@ void TraceSinkRx(std::size_t index, Ptr<Packet> p, Ptr<RdmaRxQueuePair> qp)
 	rxBytes[index] += p->GetSize();
 }
 
-Time measurementInterval = MilliSeconds(1);
+// Time measurementInterval = MilliSeconds(1);
+Time measurementInterval = MicroSeconds(100);
 void PrintThroughput(Time measurementTime)
 {
 	for (std::size_t i = 0; i < 5; ++i)
@@ -774,7 +787,16 @@ int main(int argc, char *argv[])
 			}else if (key.compare("OUTPUT_FOLDER") == 0){
                 conf >> output_folder;
                 std::cout << "OUTPUT_FOLDER\t\t\t\t" << output_folder << '\n';
-            }
+            }else if (key.compare("TRACE_RATE") == 0){
+				conf >> trace_rate;
+				std::cout << "TRACE_RATE\t\t\t\t" << trace_rate << '\n';
+			}else if (key.compare("TRACE_RATE_START") == 0){
+				conf >> trace_rate_start;
+				std::cout << "TRACE_RATE_START\t\t\t\t" << trace_rate_start << '\n';
+			}else if (key.compare("TRACE_RATE_END") == 0){
+				conf >> trace_rate_end;
+				std::cout << "TRACE_RATE_END\t\t\t\t" << trace_rate_end << '\n';
+			}
 			fflush(stdout);
 		}
 		conf.close();
@@ -1015,6 +1037,14 @@ int main(int argc, char *argv[])
 			rdmaHw->SetAttribute("EnableMagicControl", BooleanValue(enable_magic));
 			rdmaHw->SetPintSmplThresh(pint_prob);
 
+			if (i >= 0 && i <= 4) {
+				rdmaHw->SetAttribute("TraceRate", BooleanValue(trace_rate));
+				rdmaHw->SetAttribute("TraceRateStartTime", DoubleValue(trace_rate_start));
+				rdmaHw->SetAttribute("TraceRateEndTime", DoubleValue(trace_rate_end));
+				
+				rdmaHw->TraceConnectWithoutContext("RateChange", MakeBoundCallback(TraceRate, i));
+			}
+
             if (i >= 0 && i <= 4)
                 rdmaHw->TraceConnectWithoutContext("Tx", MakeBoundCallback(TraceSinkTx, i));
 
@@ -1164,6 +1194,9 @@ int main(int argc, char *argv[])
 		Thpt[i] << "#Time(s)" << "\t" << "Thpt(Gbps)" << std::endl;
         Gdpt[i].open(gdpt_file, std::ios::out);
         Gdpt[i] << "#Time(s)" << "\t" << "Gdpt(Gbps)" << std::endl;
+		std::string rate_file = output_folder + "rate_flow_" + std::to_string(i) + ".dat";
+		txRate[i].open(rate_file, std::ios::out);
+		txRate[i] << "#Time(s)" << "\t" << "old_rate"  << "\t" << "new_rate" << "\t" << "c" << std::endl;
 	}
 
 	//

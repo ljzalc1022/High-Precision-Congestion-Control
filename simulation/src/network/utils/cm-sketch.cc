@@ -243,6 +243,37 @@ void CmSketch::ClearWindow()
     // if (Simulator::Now().GetSeconds() > 2.0100 && Simulator::Now().GetSeconds() < 2.0102) {
     //     std::cout << Simulator::Now().GetSeconds() << " " << GetCard() << " " << total_txbytes << std::endl;
     // }
+
+    // uint32_t alpha = GetCard();
+    // uint64_t smallFlowBytes{0}, totalBytes{0};
+    // double p;
+    // if (alpha == 0) {
+    //     p = 0;
+    // } else {
+    //     for (uint32_t i = 0; i < m_width; ++i) {
+    //         uint64_t result = counter[0][i];
+    //         // uint64_t last_window = counter_split[pointer][0][i];
+    //         uint64_t last_window = counter_split[pointer][0][i] + counter_split[(pointer + m_granularity - 1) % m_granularity][0][i];
+    //         if (result == 0) continue;
+
+    //         uint64_t hh_thresh = m_u * total_txbytes / alpha;
+
+    //         if (result < hh_thresh) {
+    //             NS_ASSERT(smallFlowBytes + last_window >= smallFlowBytes);
+    //             smallFlowBytes += last_window;
+    //         }
+
+    //         NS_ASSERT(totalBytes + last_window >= totalBytes);
+    //         totalBytes += last_window;
+    //     }
+    //     if (totalBytes == 0) {
+    //         p = 0;
+    //     } else {
+    //         p = 1.0 * smallFlowBytes / totalBytes;
+    //     }
+    // }
+    // m_smallFlowPortion = p * 0.75 + m_smallFlowPortion * 0.25;
+
     bool flowEnded = false;
     
     switch (m_microburstMode)
@@ -263,13 +294,14 @@ void CmSketch::ClearWindow()
             // }
 
             if (lastRTT >= 500 && currentRTT <= 200) {
+                std::cout << "Flowend detected at " << Simulator::Now().GetSeconds() << std::endl;
                 flowEnded = true;
             }
         }
 
         if (flowEnded) {
             m_ableToGet = false;
-            Simulator::Schedule(m_windowSize + m_windowSize , &CmSketch::ResetGet, this);
+            Simulator::Schedule(m_windowSize + m_windowSize + m_windowSize, &CmSketch::ResetGet, this);
         }
 
         break;
@@ -406,6 +438,8 @@ CmSketch::HashFunction(uint32_t sip, uint32_t dip, uint16_t sport, uint16_t dpor
     uint32_t *p_permutation = (uint32_t *)(buf + 14);
     (*p_permutation) = permutation;
 
+    // uint32_t flowkey = GetFlowkey(sip, dip, sport, dport, pg);
+
     uint32_t hash = fnvHasher.GetHash32(buf, size);
     fnvHasher.clear();
 
@@ -484,6 +518,12 @@ CmSketch::RandomFault(bool re, uint32_t hash)
     // else {
     //     return re;
     // }
+}
+
+double
+CmSketch::GetSmallFlowPortion()
+{
+    return m_smallFlowPortion;
 }
 
 }

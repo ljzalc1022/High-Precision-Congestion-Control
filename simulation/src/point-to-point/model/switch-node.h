@@ -53,6 +53,13 @@ public:
 	// for approximate calc in PINT
 	int logres_shift(int b, int l);
 	int log2apprx(int x, int b, int m, int l); // given x of at most b bits, use most significant m bits of x, calc the result in l bits
+private:
+	std::unordered_map<uint32_t, uint32_t> m_hash2win;
+	uint32_t m_windowNum;
+	Time	 m_windowSize;
+	uint32_t m_pointer;
+	void updateWindow();
+	uint32_t hash(CustomHeader &ch) const;
 };
 
 } /* namespace ns3 */

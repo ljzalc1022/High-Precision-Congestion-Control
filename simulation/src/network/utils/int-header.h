@@ -79,6 +79,14 @@ public:
 	}
 };
 
+// class Portion {
+// public:
+// 	union {
+// 		float p;
+// 		uint32_t buf;
+// 	};
+// };
+
 class IntHeader{
 public:
 	static const uint32_t maxHop = 5;
@@ -96,7 +104,10 @@ public:
 		struct {
 			IntHop hop[maxHop];
 			uint16_t nhop;
-			uint16_t bigflowMark;
+			// uint16_t bigflowMark;
+			// uint32_t portion;
+			uint16_t magic_option; // 1 + 5 * 3 = 16
+			// Portion portion[maxHop];
 		};
 		uint64_t ts;
 		union {
@@ -109,7 +120,7 @@ public:
 
 	IntHeader();
 	static uint32_t GetStaticSize();
-	void PushHop(uint64_t time, uint64_t bytes, uint32_t qlen, uint64_t rate, bool isBigflow);
+	void PushHop(uint64_t time, uint64_t bytes, uint32_t qlen, uint64_t rate, bool isBigflow, uint16_t p);
 	void Serialize (Buffer::Iterator start) const;
 	uint32_t Deserialize (Buffer::Iterator start);
 	uint64_t GetTs(void);
