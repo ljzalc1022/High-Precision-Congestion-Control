@@ -12,6 +12,8 @@
 #include "ns3/int-header.h"
 #include <cmath>
 #include "ns3/int-tag.h"
+#include "ns3/hash-fnv.h"
+#include "ns3/core-module.h"
 
 namespace ns3 {
 
@@ -225,8 +227,38 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 				IntTag tag;
 				p->FindFirstMatchingByteTag(tag);
 				p->RemoveAllByteTags();
+				uint16_t portion{0};
+				// if (isBigflow){
+				// 	double smallFlowPortion = dev->GetQueue()->GetSmallFlowPortion();
+				// 	if (smallFlowPortion < 0.01) portion = 0;
+				// 	else if (smallFlowPortion < 0.25) portion = 1;
+				// 	else if (smallFlowPortion < 0.50) portion = 2;
+				// 	else if (smallFlowPortion < 0.75) portion = 3;
+				// 	else portion = 4;
+				// }
+				// if (true){
+				// // if (isBigflow){
+				// 	double smallFlowPortion = dev->GetQueue()->GetSmallFlowPortion();
+				// 	if (smallFlowPortion == 0) portion = 0;
+				// 	else if (smallFlowPortion < 0.125) portion = 1;
+				// 	else if (smallFlowPortion < 0.250) portion = 2;
+				// 	else if (smallFlowPortion < 0.375) portion = 3;
+				// 	else if (smallFlowPortion < 0.500) portion = 4;
+				// 	else if (smallFlowPortion < 0.625) portion = 5;
+				// 	else if (smallFlowPortion < 0.750) portion = 6;
+				// 	else portion = 7;
+				// }
+				// if (isBigflow){
+				// 	double smallFlowPortion = dev->GetQueue()->GetSmallFlowPortion();
+				// 	if (smallFlowPortion == 0) portion = 0;
+				// 	else if (smallFlowPortion < 0.20) portion = 1;
+				// 	else if (smallFlowPortion < 0.40) portion = 2;
+				// 	else if (smallFlowPortion < 0.60) portion = 3;
+				// 	else if (smallFlowPortion < 0.80) portion = 4;
+				// 	else portion = 5;
+				// }
 				ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate(), 
-							tag.m_isBigFlow, tag.m_Rb);
+							tag.m_isBigFlow, tag.m_Rb, portion);
 			}else if (m_ccMode == 10){ // HPCC-PINT
 				uint64_t t = Simulator::Now().GetTimeStep();
 				uint64_t dt = t - m_lastPktTs[ifIndex];
@@ -328,6 +360,48 @@ int SwitchNode::log2apprx(int x, int b, int m, int l){
 		#endif
 	}
 	return int(log2(x) * (1<<logres_shift(b, l)));
+}
+
+void SwitchNode::updateWindow(){
+	uint32_t next_pointer = (m_pointer + 1) % m_windowNum;
+	for (const auto& pair : m_hash2win) {
+		if (pair.second == next_pointer) {
+			m_hash2win.erase(pair.first);
+		}
+	}
+	m_pointer = next_pointer;
+	Simulator::Schedule(m_windowSize, &SwitchNode::updateWindow, this);
+}
+
+uint32_t SwitchNode::hash(CustomHeader &ch) const{
+	NS_ASSERT(ch.l3Prot == 0x11);   // UDP (data packet)
+
+	uint32_t sip = ch.sip;
+	uint32_t dip = ch.dip;
+	uint16_t sport = ch.udp.sport;
+	uint16_t dport = ch.udp.dport;
+	uint16_t pg = ch.udp.pg;
+	
+	Hash::Function::Fnv1a fnvHasher;
+	char buf[16];
+	size_t size = 14;
+	// 14 = sizeof(sip) + sizeof(dip) + sizeof(sport) + sizeof(dport) + sizeof(pg)
+
+    uint32_t *p_sip = (uint32_t *)buf;
+    (*p_sip) = sip;
+    uint32_t *p_dip = (uint32_t *)(buf + 4);
+    (*p_dip) = dip;
+    uint16_t *p_sport = (uint16_t *)(buf + 8);
+    (*p_sport) = sport;    
+    uint16_t *p_dport = (uint16_t *)(buf + 10);
+    (*p_dport) = dport;
+    uint16_t *p_pg = (uint16_t *)(buf + 12);
+    (*p_pg) = pg;
+
+	uint32_t hashv = fnvHasher.GetHash32(buf, size);
+	fnvHasher.clear();
+
+	return hashv;
 }
 
 } /* namespace ns3 */

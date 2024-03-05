@@ -30,6 +30,7 @@
 #include "ns3/ipv4-static-routing-helper.h"
 #include "ns3/packet.h"
 #include "ns3/error-model.h"
+#include "ns3/hash-fnv.h"
 #include <ns3/rdma.h>
 #include <ns3/rdma-client.h>
 #include <ns3/rdma-client-helper.h>
@@ -146,15 +147,65 @@ void ReadFlowInput(){
 	if (flow_input.idx < flow_num){
 		flowf >> flow_input.src >> flow_input.dst >> flow_input.pg >> flow_input.dport >> flow_input.maxPacketCount >> flow_input.start_time;
 		// if small flow, change the priority field to another value (default = 3)
-		if (flow_input.maxPacketCount <= 100000) { 
-			flow_input.pg = 1;
-		}
+		// if (flow_input.maxPacketCount <= 100000) { 
+		// 	flow_input.pg = 1;
+		// }
 		NS_ASSERT(n.Get(flow_input.src)->GetNodeType() == 0 && n.Get(flow_input.dst)->GetNodeType() == 0);
 	}
 }
+
+uint32_t HashFunction(uint32_t sip, uint32_t dip, uint16_t sport, uint16_t dport, uint16_t pg, uint32_t permutation)
+{
+    // Use fnv1a hash function (defined in src/core/model/hash-fnv.h)
+    Hash::Function::Fnv1a fnvHasher;
+
+    char buf[20];
+    size_t size = 18;
+    // 18 = sizeof(sip) + sizeof(dip) + sizeof(sport) + sizeof(dport) + sizeof(pg) + sizeof(permutation)
+    
+    uint32_t *p_sip = (uint32_t *)buf;
+    (*p_sip) = sip;
+    uint32_t *p_dip = (uint32_t *)(buf + 4);
+    (*p_dip) = dip;
+    uint16_t *p_sport = (uint16_t *)(buf + 8);
+    (*p_sport) = sport;    
+    uint16_t *p_dport = (uint16_t *)(buf + 10);
+    (*p_dport) = dport;
+    uint16_t *p_pg = (uint16_t *)(buf + 12);
+    (*p_pg) = pg;
+    uint32_t *p_permutation = (uint32_t *)(buf + 14);
+    (*p_permutation) = permutation;
+
+    // uint32_t flowkey = GetFlowkey(sip, dip, sport, dport, pg);
+
+    uint32_t hash = fnvHasher.GetHash32(buf, size);
+    fnvHasher.clear();
+
+    return hash;
+}
+
+string hash_file = "hash2.txt";
+std::ofstream hash_out;
+
 void ScheduleFlowInputs(){
 	while (flow_input.idx < flow_num && Seconds(flow_input.start_time) == Simulator::Now()){
 		uint32_t port = portNumder[flow_input.src][flow_input.dst]++; // get a new port number 
+		// uint32_t srcip = serverAddress[flow_input.src].Get();
+		// uint32_t dstip = serverAddress[flow_input.dst].Get();
+		// uint32_t sport = port;
+		// uint32_t dport = flow_input.dport;
+		// uint32_t pg    = flow_input.pg;
+
+		// hash_out << srcip << " " 
+		// 		 << dstip << " " 
+		// 		 << sport << " " 
+		// 		 << dport << " " 
+		// 		 << pg    << " ";
+
+		// uint32_t hash = HashFunction(srcip, dstip, sport, dport, pg, 0);
+		// hash_out << hash << std::endl;
+		
+		// flow_input.maxPacketCount = 0;
 		RdmaClientHelper clientHelper(flow_input.pg, serverAddress[flow_input.src], serverAddress[flow_input.dst], port, flow_input.dport, flow_input.maxPacketCount, has_win?(global_t==1?maxBdp:pairBdp[n.Get(flow_input.src)][n.Get(flow_input.dst)]):0, global_t==1?maxRtt:pairRtt[flow_input.src][flow_input.dst]);
 		ApplicationContainer appCon = clientHelper.Install(n.Get(flow_input.src));
 		appCon.Start(Time(0));
@@ -764,6 +815,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	hash_out.open(hash_file, std::ios::out);
 
 	bool dynamicth = use_dynamic_pfc_threshold;
 

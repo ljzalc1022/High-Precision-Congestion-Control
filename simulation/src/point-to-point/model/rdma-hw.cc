@@ -643,7 +643,7 @@ void RdmaHw::ChangeRate(Ptr<RdmaQueuePair> qp, DataRate new_rate){
 	m_nic[nic_idx].dev->UpdateNextAvail(qp->m_nextAvail);
 	#endif
 
-	m_rateTrace(qp->m_rate.GetBitRate(), new_rate.GetBitRate());
+	// m_rateTrace(qp->m_rate.GetBitRate(), new_rate.GetBitRate());
 	if (m_traceRate) {
 		double time = Simulator::Now().GetSeconds();
 		// std::cout << time << " " << m_traceStartTime << " " << m_traceEndTime << std::endl;
@@ -790,7 +790,8 @@ void RdmaHw::HandleAckHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch)
 
 	if (m_enableMagic) {
 		IntHeader &ih = ch.ack.ih;
-		bool bigflowMark = (ih.bigflowMark == 1) ? true : false;
+		bool bigflowMark{true};
+		// bigflowMark = ((ih.magic_option & 0x1) == 1) ? true : false;
 		if (bigflowMark)
 		{
 			// std::cout << "Received!" << std::endl;
@@ -892,10 +893,47 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 						if (updated[i]){
 							double c = qp->hp.hopState[i].u / m_targetUtil;
 							if (c >= 1 && ih.hop[i].bigflow == 0) {
-								max_c = 1;
-							} else{
+								// uint16_t portion = (((ih.magic_option) >> (3 * i + 1)) & 0x7);
+								// double smallFlowPortion = m_portions[portion];
+								// double new_c{0};
+								// double thresh{0.25};
+								// if (1 / c - smallFlowPortion < thresh) {
+								// 	if (1 / c - thresh > 0){
+								// 		new_c = smallFlowPortion / (1 / c - thresh);
+								// 	}
+								// 	else{
+								// 		new_c = smallFlowPortion * c;
+								// 		new_c = (new_c >= 1) ? new_c : 1; // 随便取的
+								// 	}
+								// }
+								// else {
+								// 	new_c = 1;
+								// 	// max_c = (1 > max_c) ? 1 : max_c;
+								// }
+								double new_c{1};
+								max_c = (new_c > max_c) ? new_c : max_c;
+							} 
+							// else if (c >= 1 && ih.hop[i].bigflow != 0) {
+							// 	// double smallFlowPortion = ih.portion[i].p;
+							// 	uint16_t portion = (((ih.magic_option) >> (3 * i + 1)) & 0x7);
+							// 	double smallFlowPortion = m_portions[portion];
+							// 	double new_c{0};
+							// 	if (1 / c - smallFlowPortion > 0) {
+							// 		new_c = (1 - smallFlowPortion) / (1 / c - smallFlowPortion);
+							// 	} else {
+							// 		// new_c = c; // 随便取的
+							// 		new_c = c * 5;
+							// 	} 
+							// 	max_c = (new_c > max_c) ? new_c : max_c;
+							// } 
+							else {
 								max_c = (c > max_c) ? c : max_c;
 							}
+							// double time = Simulator::Now().GetSeconds();
+							// if (time >= 2.3 && time <= 2.7) {
+							// 	std::cout << "hop" << i << ":" << "\tc=" << c << "\tmax_c= "
+							// 			<< max_c << "\tcur_rate=" << qp->hp.m_curRate << std::endl;  
+							// }
 						}
 					}
 				}
@@ -1001,6 +1039,7 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 								std::cout << std::endl << Simulator::Now().GetNanoSeconds() << ": curRate change " << qp->hp.m_curRate.GetBitRate() <<
 											" -> " << new_rate.GetBitRate() << std::endl;
 						}	
+						// m_rateTrace(qp->hp.m_curRate.GetBitRate(), new_rate.GetBitRate(), max_c);
 						qp->hp.m_curRate = new_rate;					
 						qp->hp.m_incStage = new_incStage;
 					// }

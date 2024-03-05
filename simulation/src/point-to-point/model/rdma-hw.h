@@ -48,7 +48,8 @@ public:
 	TracedCallback<Ptr<Packet>, Ptr<RdmaQueuePair> > m_txTrace;
 	bool m_traceRate{false};
 	double m_traceStartTime, m_traceEndTime;
-	TracedCallback<uint64_t, uint64_t > m_rateTrace;
+	// TracedCallback<uint64_t, uint64_t > m_rateTrace;
+	TracedCallback<uint64_t, uint64_t, double > m_rateTrace;
 
 	// qp complete callback
 	typedef Callback<void, Ptr<RdmaQueuePair> > QpCompleteCallback;
@@ -135,6 +136,9 @@ public:
 	void UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch, bool fast_react);
 	void UpdateRateHpTest(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch, bool fast_react);
 	void FastReactHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch);
+	// double m_portions[8]{0.000, 0.125, 0.250, 0.375, 0.500, 0.625, 0.750, 0.875};
+	// double m_portions[8]{0.00, 0.20, 0.40, 0.60, 0.80, 0.95, 0.00, 0.00};
+	double m_portions[8]{0.00, 0.25, 0.50, 0.75, 0.95, 0.00, 0.00, 0.00};
 
 	/**********************
 	 * TIMELY
