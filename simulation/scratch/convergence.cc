@@ -1034,7 +1034,8 @@ int main(int argc, char *argv[])
 			rdmaHw->SetAttribute("TargetUtil", DoubleValue(u_target));
 			rdmaHw->SetAttribute("RateBound", BooleanValue(rate_bound));
 			rdmaHw->SetAttribute("DctcpRateAI", DataRateValue(DataRate(dctcp_rate_ai)));
-			rdmaHw->SetAttribute("EnableMagicControl", BooleanValue(enable_magic));
+			rdmaHw->SetAttribute("EnableMagicControl", BooleanValue(false));
+			rdmaHw->SetAttribute("EnableMyCC", BooleanValue(enable_magic));
 			rdmaHw->SetPintSmplThresh(pint_prob);
 
 			if (i >= 0 && i <= 4) {
@@ -1101,6 +1102,7 @@ int main(int argc, char *argv[])
 	std::cout << "maxRtt=" << maxRtt << " maxBdp=" << maxBdp << '\n';
 
     Config::SetDefault("ns3::CmSketch::WindowSize", TimeValue(NanoSeconds(maxRtt * sketch_window_size)));
+    Config::SetDefault("ns3::MySketch::WindowSize", TimeValue(NanoSeconds(maxRtt * sketch_window_size)));
 
 	//
 	// setup switch CC

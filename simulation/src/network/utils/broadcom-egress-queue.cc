@@ -96,7 +96,7 @@ namespace ns3 {
 					{
 						m_sketch = CreateObject<MySketch>();
 						m_sketch->Init();
-						m_sketch->setTh(m_rate / 10);
+						m_sketch->setRate(m_rate);
 					}
 					// std::cout << "packet inserted" << std::endl;
 					if (CheckCongestion())

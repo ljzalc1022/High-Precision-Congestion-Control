@@ -31,6 +31,7 @@ private:
     struct data {
         uint64_t n;
         int e;
+        data() {n = e = 0;}
         void update(int w, int q, int m)
         {
             if (q - e >= m) n = 0;
@@ -64,7 +65,6 @@ private:
             return pg < other.pg;
         }
     };
-    uint64_t m_Th;
     std::set<FiveTuple> m_heavyKeys;
 
     uint64_t Query(const FiveTuple &flowkey);
@@ -72,11 +72,29 @@ private:
     uint32_t Hash(const FiveTuple &item, uint32_t permutation) const;
     uint32_t HashFunction(uint32_t sip, uint32_t dip, uint16_t sport, uint16_t dport, 
                           uint16_t pg, uint32_t permutation) const;
+
+private:
+    uint64_t m_rate;
 public:
-    void setTh(uint64_t Th)
+    void setRate(uint64_t rate)
     {
-        m_Th = Th;
+        m_rate = rate;
     }
+    uint64_t GetTh()
+    {
+        int card = - m_nColumns * log(double(m_nColumns - m_card) / m_nColumns);
+        if (card == 0) return 0;
+        return m_rate / card;
+    }
+
+private:
+    int m_card;
+    std::vector<int> m_B; // B in Magic Sketch
+    std::vector<int> m_cntB;
+
+private:
+    uint64_t m_totalBytes;
+    std::vector<uint64_t> m_bytes;
 };
 
 }

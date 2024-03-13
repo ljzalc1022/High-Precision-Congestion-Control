@@ -80,6 +80,7 @@ public:
 
 public:
 	uint64_t Rb; // rate of big flows
+	uint64_t R; // total rate
 };
 
 // class Portion {
@@ -124,7 +125,7 @@ public:
 	IntHeader();
 	static uint32_t GetStaticSize();
 	void PushHop(uint64_t time, uint64_t bytes, uint32_t qlen, uint64_t rate, 
-				 bool isBigflow, uint64_t Rb, uint16_t p);
+				 bool isBigflow, uint64_t Rb, uint64_t R, uint16_t p);
 	void Serialize (Buffer::Iterator start) const;
 	uint32_t Deserialize (Buffer::Iterator start);
 	uint64_t GetTs(void);

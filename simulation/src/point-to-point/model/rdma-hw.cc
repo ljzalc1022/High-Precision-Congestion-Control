@@ -179,6 +179,11 @@ TypeId RdmaHw::GetTypeId (void)
 				BooleanValue(false),
 				MakeBooleanAccessor(&RdmaHw::m_enableMagic),
 				MakeBooleanChecker())
+		.AddAttribute("EnableMyCC",
+				"Enable My Congestion Control",
+				BooleanValue(false),
+				MakeBooleanAccessor(&RdmaHw::m_enableMyCC),
+				MakeBooleanChecker())
 		.AddTraceSource("Rx",
 				"A packet has been received",
 				MakeTraceSourceAccessor(&RdmaHw::m_rxTrace))
@@ -856,7 +861,28 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 				uint64_t tau = ih.hop[i].GetTimeDelta(qp->hp.hop[i]);;
 				double duration = tau * 1e-9;
 				double txRate = (ih.hop[i].GetBytesDelta(qp->hp.hop[i])) * 8 / duration;
-				double u = txRate / ih.hop[i].GetLineRate() + (double)std::min(ih.hop[i].GetQlen(), qp->hp.hop[i].GetQlen()) * qp->m_max_rate.GetBitRate() / ih.hop[i].GetLineRate() /qp->m_win;
+				// double u = txRate / ih.hop[i].GetLineRate() + (double)std::min(ih.hop[i].GetQlen(), qp->hp.hop[i].GetQlen()) * qp->m_max_rate.GetBitRate() / ih.hop[i].GetLineRate() /qp->m_win;
+				double u = (double)ih.hop[i].R / ih.hop[i].GetLineRate();
+				
+				// my CC
+				if (m_enableMyCC)
+				{
+					// there are heavy hitters on ith hop and it is congested
+					if (ih.hop[i].Rb != 0 && u >= 1) 
+					{
+						if (!ih.hop[i].bigflow) 
+						{
+							// printf("%.6lf %d small\n", Simulator::Now().GetSeconds(), qp->m_ipid);
+							u = 1;
+						}
+						else
+						{
+							u = ih.hop[i].Rb / double(ih.hop[i].GetLineRate() - (ih.hop[i].R - ih.hop[i].Rb));
+							// printf("%.6lf %d %lu %lu %lf \n", Simulator::Now().GetSeconds(), qp->m_ipid, ih.hop[i].Rb, ih.hop[i].R, u);
+						}
+					}
+				}
+
 				#if PRINT_LOG
 				if (print)
 					printf(" %.3lf %.3lf", txRate, u);

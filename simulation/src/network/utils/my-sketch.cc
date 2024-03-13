@@ -59,6 +59,13 @@ MySketch::Init()
     m_cntWindows = 0;
     m_startTime = Simulator::Now();
     Simulator::Schedule(m_windowSize, &MySketch::NextWindow, this);
+
+    m_card = 0;
+    m_B.resize(m_nColumns, -m_nWindows);
+    m_cntB.resize(m_nWindows, 0);
+
+    m_totalBytes = 0;
+    m_bytes.resize(m_nWindows, 0);
 }
 
 void
@@ -66,35 +73,61 @@ MySketch::Update(Ptr<Packet> packet, IntTag &tag)
 {
     FiveTuple flowkey(packet);
     uint64_t w = packet->GetSize();
+    m_totalBytes += w;
+    m_bytes[m_curWindow] += w;
     for (int i = 0; i < m_nRows; i++) 
     {
         int key = Hash(flowkey, i) % m_nColumns;
-        m_counters[m_curWindow][i][key].update(w, m_curWindow, m_nWindows);
+        m_counters[m_curWindow][i][key].update(w, m_cntWindows, m_nWindows);
         for (int j = 1; j < m_nWindows; j++)
         {
             int j_ = (m_curWindow + j) % m_nWindows;
-            m_counters[j_][i][key].update(0, m_curWindow, m_nWindows);
+            m_counters[j_][i][key].update(0, m_cntWindows, m_nWindows);
+        }
+
+        // update B
+        if (i == 0)
+        {
+            if (m_cntWindows - m_B[key] < m_nWindows)
+            {
+                m_cntB[m_B[key] % m_nWindows]--;
+                m_card--;
+            }
+            m_B[key] = m_cntWindows;
+            m_cntB[m_curWindow]++;
+            m_card++;
         }
     }
 
     uint64_t Rb = 0;
-    for (auto f: m_heavyKeys)
+    for (auto it = m_heavyKeys.begin(); it != m_heavyKeys.end();)
     {
+        auto f = *it;
         uint64_t R = Query(f);
-        if (R < m_Th) m_heavyKeys.erase(f);
-        else Rb += R;
+        if (R < GetTh())
+        {
+            it = m_heavyKeys.erase(it); // erase returns the iterator to the next element
+        }
+        else
+        {
+            Rb += R;
+            ++it; // Move to the next element
+        }
     }
     tag.m_isBigFlow = true;
     if (m_heavyKeys.find(flowkey) == m_heavyKeys.end())
     {
         uint64_t R = Query(flowkey);
-        if (R >= m_Th) 
+        if (R >= GetTh()) 
         {
             m_heavyKeys.insert(flowkey);
+            Rb += R;
         }
         else tag.m_isBigFlow = false;
     }
     tag.m_Rb = Rb;
+    tag.m_R = m_totalBytes * 8 / (Simulator::Now() - m_startTime).GetSeconds();
+    NS_LOG_DEBUG("m_R = " << tag.m_R << ", m_totalBytes = " << m_totalBytes << std::endl);
 }
 
 uint64_t 
@@ -103,7 +136,7 @@ MySketch::Query(const FiveTuple &flowkey)
     std::vector<uint64_t> re(m_nWindows);
     for (int i = 0; i < m_nRows; i++)
     {
-        int key = Hash(flowkey, i);
+        int key = Hash(flowkey, i) % m_nColumns;
         for (int j = 0; j < m_nWindows; j++)
         {
             m_counters[j][i][key].update(0, m_cntWindows, m_nWindows);
@@ -115,15 +148,27 @@ MySketch::Query(const FiveTuple &flowkey)
     }
     uint64_t sz = 0;
     for (auto s: re) sz += s;
-    return sz / (Simulator::Now() - m_startTime).GetSeconds();
+    return sz * 8 / (Simulator::Now() - m_startTime).GetSeconds();
 }
 
 void
 MySketch::NextWindow()
 {
     m_curWindow = (m_curWindow + 1) % m_nWindows;
-    m_cntWindows++;
-    m_startTime += m_windowSize;
+    if (++m_cntWindows >= m_nWindows)
+    {
+        m_startTime += m_windowSize;
+    }
+
+    // printf("%.6lf %d %lu\n", Simulator::Now().GetSeconds(), m_card, GetTh());
+
+    m_card -= m_cntB[m_curWindow];
+    m_cntB[m_curWindow] = 0;    
+
+    m_totalBytes -= m_bytes[m_curWindow];
+    m_bytes[m_curWindow] = 0;
+
+    Simulator::Schedule(m_windowSize, &MySketch::NextWindow, this);
 }
 
 // hash function by snow

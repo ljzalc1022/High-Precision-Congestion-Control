@@ -44,6 +44,7 @@ public:
 
 	bool m_isBigflow{false};
 	bool m_enableMagic;
+	bool m_enableMyCC;
 	TracedCallback<Ptr<Packet>, Ptr<RdmaRxQueuePair> > m_rxTrace;
 	TracedCallback<Ptr<Packet>, Ptr<RdmaQueuePair> > m_txTrace;
 	bool m_traceRate{false};
