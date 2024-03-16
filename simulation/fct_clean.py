@@ -1,8 +1,12 @@
 import math
 
 import sys
-fct_f = open("./experiment-results/hpcc/fat/25G_30L/0.1s/dynamic_u0.6_FP_90/fct.txt")
-out_f = open("./experiment-results/hpcc/fat/25G_30L/0.1s/dynamic_u0.6_FP_90/fct_pure.txt", "w")
+import os
+if len(sys.argv) != 2:
+    print(f"usage {sys.argv[0]} <dataFolder>")
+    exit()
+fct_f = open(os.sep.join([sys.argv[1], "fct.txt"]))
+out_f = open(os.sep.join([sys.argv[1], "fct_pure.txt"]), "w")
 
 out_f.write("flow size(B)\tFCT(ns)\n")
 

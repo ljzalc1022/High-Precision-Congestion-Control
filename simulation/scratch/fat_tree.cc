@@ -825,13 +825,16 @@ int main(int argc, char *argv[])
 
 	Config::SetDefault("ns3::BEgressQueue::EnableSketch", BooleanValue(enable_sketch));
 
-    Config::SetDefault("ns3::CmSketch::Depth", UintegerValue(sketch_depth));
-    Config::SetDefault("ns3::CmSketch::Width", UintegerValue(sketch_width));
-    Config::SetDefault("ns3::CmSketch::Granularity", UintegerValue(sketch_granulatiry));
-    Config::SetDefault("ns3::CmSketch::HeavyhitterMode", EnumValue(magic_hh_mode));
-    Config::SetDefault("ns3::CmSketch::u", DoubleValue(magic_u));
-    Config::SetDefault("ns3::CmSketch::FP", DoubleValue(FP));
-    Config::SetDefault("ns3::CmSketch::FN", DoubleValue(FN));
+    // Config::SetDefault("ns3::CmSketch::Depth", UintegerValue(sketch_depth));
+    // Config::SetDefault("ns3::CmSketch::Width", UintegerValue(sketch_width));
+    // Config::SetDefault("ns3::CmSketch::Granularity", UintegerValue(sketch_granulatiry));
+    // Config::SetDefault("ns3::CmSketch::HeavyhitterMode", EnumValue(magic_hh_mode));
+    // Config::SetDefault("ns3::CmSketch::u", DoubleValue(magic_u));
+    // Config::SetDefault("ns3::CmSketch::FP", DoubleValue(FP));
+    // Config::SetDefault("ns3::CmSketch::FN", DoubleValue(FN));
+    Config::SetDefault("ns3::MySketch::Rows", IntegerValue(sketch_depth));
+    Config::SetDefault("ns3::MySketch::Columns", IntegerValue(sketch_width));
+    Config::SetDefault("ns3::MySketch::Windows", IntegerValue(sketch_granulatiry));
 
 	// set int_multi
 	IntHop::multi = int_multi;
@@ -1044,7 +1047,8 @@ int main(int argc, char *argv[])
 			rdmaHw->SetAttribute("TargetUtil", DoubleValue(u_target));
 			rdmaHw->SetAttribute("RateBound", BooleanValue(rate_bound));
 			rdmaHw->SetAttribute("DctcpRateAI", DataRateValue(DataRate(dctcp_rate_ai)));
-			rdmaHw->SetAttribute("EnableMagicControl", BooleanValue(enable_magic));
+			// rdmaHw->SetAttribute("EnableMagicControl", BooleanValue(enable_magic));
+			rdmaHw->SetAttribute("EnableMyCC", BooleanValue(enable_magic));
 			rdmaHw->SetPintSmplThresh(pint_prob);
 			// create and install RdmaDriver
 			Ptr<RdmaDriver> rdma = CreateObject<RdmaDriver>();
@@ -1095,7 +1099,7 @@ int main(int argc, char *argv[])
 	// printf("maxRtt=%lu maxBdp=%lu\n", maxRtt, maxBdp);
 	std::cout << "maxRtt=" << maxRtt << " maxBdp=" << maxBdp << '\n';
 
-    Config::SetDefault("ns3::CmSketch::WindowSize", TimeValue(NanoSeconds(maxRtt * sketch_window_size)));
+    Config::SetDefault("ns3::MySketch::WindowSize", TimeValue(NanoSeconds(maxRtt * sketch_window_size)));
 
 	//
 	// setup switch CC
