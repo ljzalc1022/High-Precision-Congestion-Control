@@ -81,6 +81,7 @@ public:
 public:
 	uint64_t Rb; // rate of big flows
 	uint64_t R; // total rate
+	uint64_t card; // number of flows on the link
 };
 
 // class Portion {
@@ -103,7 +104,8 @@ public:
 	static Mode mode;
 	static int pint_bytes;
 
-	// Note: the structure of IntHeader must have no internal padding, because we will directly transform the part of packet buffer to IntHeader*
+	// Note: the structure of IntHeader must have no internal padding, 
+	// because we will directly transform the part of packet buffer to IntHeader*
 	union{
 		struct {
 			IntHop hop[maxHop];
@@ -125,7 +127,7 @@ public:
 	IntHeader();
 	static uint32_t GetStaticSize();
 	void PushHop(uint64_t time, uint64_t bytes, uint32_t qlen, uint64_t rate, 
-				 bool isBigflow, uint64_t Rb, uint64_t R, uint16_t p);
+				 bool isBigflow, uint64_t Rb, uint64_t R, uint32_t card, uint16_t p);
 	void Serialize (Buffer::Iterator start) const;
 	uint32_t Deserialize (Buffer::Iterator start);
 	uint64_t GetTs(void);

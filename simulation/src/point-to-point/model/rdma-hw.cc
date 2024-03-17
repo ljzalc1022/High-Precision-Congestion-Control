@@ -180,9 +180,14 @@ TypeId RdmaHw::GetTypeId (void)
 				MakeBooleanAccessor(&RdmaHw::m_enableMagic),
 				MakeBooleanChecker())
 		.AddAttribute("EnableMyCC",
-				"Enable My Congestion Control",
+				"Enable my congestion control",
 				BooleanValue(false),
 				MakeBooleanAccessor(&RdmaHw::m_enableMyCC),
+				MakeBooleanChecker())
+		.AddAttribute("EnableDynamicAI",
+				"Enable dynamic addictive increase",
+				BooleanValue(false),
+				MakeBooleanAccessor(&RdmaHw::m_enableDynamicAI),
 				MakeBooleanChecker())
 		.AddTraceSource("Rx",
 				"A packet has been received",
@@ -848,6 +853,9 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 			uint64_t dt = 0;
 			bool updated[IntHeader::maxHop] = {false}, updated_any = false;
 			NS_ASSERT(ih.nhop <= IntHeader::maxHop);
+
+			uint32_t card = -1; // dynamic AI for !multi-rate
+
 			for (uint32_t i = 0; i < ih.nhop; i++){
 				if (m_sampleFeedback){
 					if (ih.hop[i].GetQlen() == 0 && fast_react)
@@ -896,6 +904,7 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 						if (u > U){
 							U = u;
 							dt = tau;
+							card = ih.hop[i].card;
 						}						
 					}
 				}else {
@@ -975,11 +984,13 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 						if (time >= m_traceStartTime && time <= m_traceEndTime)
 							std::cout << "max_c: " << max_c << std::endl;
 					}	
+					DataRate ai = m_rai;
+					if (m_enableDynamicAI) ai = ai / card;
 					if (max_c >= 1 || qp->hp.m_incStage >= m_miThresh){
-						new_rate = qp->hp.m_curRate / max_c + m_rai;
+						new_rate = qp->hp.m_curRate / max_c + ai;
 						new_incStage = 0;
 					}else{
-						new_rate = qp->hp.m_curRate + m_rai;
+						new_rate = qp->hp.m_curRate + ai;
 						new_incStage = qp->hp.m_incStage+1;
 					}
 					if (new_rate < m_minRate)

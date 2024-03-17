@@ -25,7 +25,7 @@ IntTag::GetInstanceTypeId() const
 uint32_t
 IntTag::GetSerializedSize() const 
 {
-    return 17;
+    return 21;
 }
 
 void
@@ -34,6 +34,7 @@ IntTag::Serialize(TagBuffer buf) const
     buf.WriteU8(m_isBigFlow);
     buf.WriteU64(m_Rb);
     buf.WriteU64(m_R);
+    buf.WriteU32(m_card);
 }
 
 void 
@@ -42,12 +43,14 @@ IntTag::Deserialize(TagBuffer buf)
     m_isBigFlow = buf.ReadU8();
     m_Rb = buf.ReadU64();
     m_R = buf.ReadU64();
+    m_card = buf.ReadU32();
 }
 
 void 
 IntTag::Print(std::ostream& os) const 
 {
-    os << "INT tag: " << m_isBigFlow << ' ' << m_Rb << ' ' << m_R << std::endl;
+    os << "INT tag: " << m_isBigFlow << ' ' << m_Rb << ' ' << m_R << ' '
+                      << m_card << std::endl;
 }
 
 

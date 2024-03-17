@@ -74,6 +74,7 @@ bool rate_bound = true;
 // config parameters specially for sketch
 bool enable_sketch;
 bool enable_magic;
+bool enable_dynamicAI;
 
 uint32_t sketch_depth = 2, sketch_width = 65537;
 uint32_t sketch_granulatiry = 5;
@@ -766,6 +767,9 @@ int main(int argc, char *argv[])
 			}else if (key.compare("ENABLE_MAGIC") == 0){
 				conf >> enable_magic;
 				std::cout << "ENABLE_MAGIC\t\t\t\t" << enable_magic << "\n";
+			}else if (key.compare("ENABLE_DYNAMICAI") == 0){
+				conf >> enable_dynamicAI;
+				std:: cout << "ENABLE_DYNAMICAI\t\t\t\t" << enable_dynamicAI << "\n";
 			}else if (key.compare("SKETCH_DEPTH") == 0){
                 conf >> sketch_depth;
                 std::cout << "SKETCH_DEPTH\t\t\t\t" << sketch_depth << '\n';
@@ -1049,6 +1053,7 @@ int main(int argc, char *argv[])
 			rdmaHw->SetAttribute("DctcpRateAI", DataRateValue(DataRate(dctcp_rate_ai)));
 			// rdmaHw->SetAttribute("EnableMagicControl", BooleanValue(enable_magic));
 			rdmaHw->SetAttribute("EnableMyCC", BooleanValue(enable_magic));
+			rdmaHw->SetAttribute("EnableDynamicAI", BooleanValue(enable_dynamicAI));
 			rdmaHw->SetPintSmplThresh(pint_prob);
 			// create and install RdmaDriver
 			Ptr<RdmaDriver> rdma = CreateObject<RdmaDriver>();

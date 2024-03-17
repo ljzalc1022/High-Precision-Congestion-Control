@@ -80,9 +80,13 @@ public:
     {
         m_rate = rate;
     }
+    uint32_t GetCard()
+    {
+        return - m_nColumns * log(double(m_nColumns - m_card) / m_nColumns);
+    }
     uint64_t GetTh()
     {
-        int card = - m_nColumns * log(double(m_nColumns - m_card) / m_nColumns);
+        int card = GetCard();
         if (card == 0) return 0;
         return m_rate / card;
     }

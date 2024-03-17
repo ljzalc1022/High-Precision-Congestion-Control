@@ -127,6 +127,8 @@ MySketch::Update(Ptr<Packet> packet, IntTag &tag)
     }
     tag.m_Rb = Rb;
     tag.m_R = m_totalBytes * 8 / (Simulator::Now() - m_startTime).GetSeconds();
+    tag.m_card = GetCard();
+
     NS_LOG_DEBUG("m_R = " << tag.m_R << ", m_totalBytes = " << m_totalBytes << std::endl);
 }
 

@@ -18,6 +18,7 @@ public:
     uint8_t m_isBigFlow;
     uint64_t m_Rb;
     uint64_t m_R;
+    uint32_t m_card;
 };
 
 }
