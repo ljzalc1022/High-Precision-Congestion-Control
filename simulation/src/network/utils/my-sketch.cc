@@ -34,6 +34,11 @@ MySketch::GetTypeId(void)
                       TimeValue(MicroSeconds(6)),
                       MakeTimeAccessor(&MySketch::m_windowSize),
                       MakeTimeChecker())
+        .AddAttribute("H",
+                      "the hysteresis factor",
+                      DoubleValue(1),
+                      MakeDoubleAccessor(&MySketch::m_h),
+                      MakeDoubleChecker<double>(0, 1))
         ;
     return tid;
 }
@@ -104,7 +109,7 @@ MySketch::Update(Ptr<Packet> packet, IntTag &tag)
     {
         auto f = *it;
         uint64_t R = Query(f);
-        if (R < GetTh())
+        if (R < GetTh() * m_h)
         {
             it = m_heavyKeys.erase(it); // erase returns the iterator to the next element
         }

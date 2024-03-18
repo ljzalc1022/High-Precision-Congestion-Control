@@ -79,6 +79,7 @@ bool enable_dynamicAI;
 uint32_t sketch_depth = 2, sketch_width = 65537;
 uint32_t sketch_granulatiry = 5;
 double sketch_window_size = 0.5;
+double sketch_h = 1;
 uint32_t magic_hh_mode = 0;
 uint64_t magic_offset = 0;
 double magic_u = 0.45;
@@ -782,7 +783,10 @@ int main(int argc, char *argv[])
             }else if (key.compare("SKETCH_WINDOW_SIZE") == 0){
                 conf >> sketch_window_size;
                 std::cout << "SKETCH_WINDOW_SIZE\t\t\t\t" << sketch_window_size << '\n'; 
-            }else if (key.compare("MAGIC_HH_MODE") == 0){
+            }else if (key.compare("SKETCH_H") == 0){
+				conf >> sketch_h;
+				std::cout << "SKETCH_H\t\t\t\t" << sketch_h << '\n';
+			}else if (key.compare("MAGIC_HH_MODE") == 0){
                 conf >> magic_hh_mode;
                 std::cout << "MAGIC_HH_MODE\t\t\t\t" << magic_hh_mode << '\n';
             }else if (key.compare("MAGIC_OFFSET") == 0){
@@ -839,6 +843,7 @@ int main(int argc, char *argv[])
     Config::SetDefault("ns3::MySketch::Rows", IntegerValue(sketch_depth));
     Config::SetDefault("ns3::MySketch::Columns", IntegerValue(sketch_width));
     Config::SetDefault("ns3::MySketch::Windows", IntegerValue(sketch_granulatiry));
+	Config::SetDefault("ns3::MySketch::H", DoubleValue(sketch_h));
 
 	// set int_multi
 	IntHop::multi = int_multi;

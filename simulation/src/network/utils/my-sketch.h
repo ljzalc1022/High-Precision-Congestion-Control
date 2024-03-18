@@ -99,6 +99,9 @@ private:
 private:
     uint64_t m_totalBytes;
     std::vector<uint64_t> m_bytes;
+
+private:
+    double m_h; 
 };
 
 }
