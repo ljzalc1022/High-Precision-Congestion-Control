@@ -869,24 +869,32 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 				uint64_t tau = ih.hop[i].GetTimeDelta(qp->hp.hop[i]);;
 				double duration = tau * 1e-9;
 				double txRate = (ih.hop[i].GetBytesDelta(qp->hp.hop[i])) * 8 / duration;
-				double u = txRate / ih.hop[i].GetLineRate() + (double)std::min(ih.hop[i].GetQlen(), qp->hp.hop[i].GetQlen()) * qp->m_max_rate.GetBitRate() / ih.hop[i].GetLineRate() /qp->m_win;
+				double qlenOverT = (double)std::min(ih.hop[i].GetQlen(), qp->hp.hop[i].GetQlen()) 
+					* qp->m_max_rate.GetBitRate() / qp->m_win;
+				double u = txRate / ih.hop[i].GetLineRate() + qlenOverT / ih.hop[i].GetLineRate();
 				// double u = (double)ih.hop[i].R / ih.hop[i].GetLineRate();
 				
 				// my CC
-				if (m_enableMyCC)
+				if (m_enableMyCC && u >= m_targetUtil)
 				{
-					// there are heavy hitters on ith hop and it is congested
-					if (ih.hop[i].Rb != 0 && u >= m_targetUtil) 
+					double Rb = (ih.hop[i].GetHBytesDelta(qp->hp.hop[i])) * 8 / duration;
+					// if (tau > qp->m_baseRtt)
+					// 	tau = qp->m_baseRtt;
+					// Rb = (qp->myCC.m_Rb * (qp->m_baseRtt - tau) + Rb * tau) / double(qp->m_baseRtt);
+					double Rs = txRate - Rb;
+					qp->myCC.m_Rb = Rb;
+
+					if (!ih.hop[i].bigflow) 
 					{
-						if (!ih.hop[i].bigflow) 
-						{
-							u = m_targetUtil;
-						}
-						else
-						{
-							u = ih.hop[i].Rb / double(ih.hop[i].GetLineRate() * m_targetUtil - (ih.hop[i].R - ih.hop[i].Rb)) * m_targetUtil;
-						}
+						u = 1;
 					}
+					else
+					{
+						// u = ih.hop[i].Rb / double(ih.hop[i].GetLineRate() * m_targetUtil - (ih.hop[i].R - ih.hop[i].Rb)) * m_targetUtil;
+						double Bb = ih.hop[i].GetLineRate() * m_targetUtil - Rs;
+						u = Rb / Bb + qlenOverT / Bb;
+					}
+					u *= m_targetUtil; // c = u / m_targetUtil
 				}
 				// printf("%.6lf %d %lu %lu %lu %lf\n", Simulator::Now().GetSeconds(), qp->sip.Get(), ih.hop[i].Rb, ih.hop[i].R, ih.hop[i].bigflow, u);
 

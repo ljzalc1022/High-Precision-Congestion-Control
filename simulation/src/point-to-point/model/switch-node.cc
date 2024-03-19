@@ -197,6 +197,7 @@ bool SwitchNode::SwitchReceiveFromDevice(Ptr<NetDevice> device, Ptr<Packet> pack
 
 void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Packet> p){
 	FlowIdTag t;
+	IntTag tag;
 	p->PeekPacketTag(t);
 	if (qIndex != 0){
 		uint32_t inDev = t.GetFlowId();
@@ -224,7 +225,6 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 			IntHeader *ih = (IntHeader*)&buf[PppHeader::GetStaticSize() + 20 + 8 + 6]; // ppp, ip, udp, SeqTs, INT
 			Ptr<QbbNetDevice> dev = DynamicCast<QbbNetDevice>(m_devices[ifIndex]);
 			if (m_ccMode == 3){ // HPCC
-				IntTag tag;
 				p->FindFirstMatchingByteTag(tag);
 				p->RemoveAllByteTags();
 				uint16_t portion{0};
@@ -258,7 +258,7 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 				// 	else portion = 5;
 				// }
 				ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate(), 
-							tag.m_isBigFlow, tag.m_Rb, tag.m_R, tag.m_card, portion);
+							tag.m_isBigFlow, m_txHeavyBytes[ifIndex], tag.m_card, portion);
 			}else if (m_ccMode == 10){ // HPCC-PINT
 				uint64_t t = Simulator::Now().GetTimeStep();
 				uint64_t dt = t - m_lastPktTs[ifIndex];
@@ -337,6 +337,10 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 		}
 	}
 	m_txBytes[ifIndex] += p->GetSize();
+	if (tag.m_isBigFlow)
+	{
+		m_txHeavyBytes[ifIndex] += p->GetSize();
+	}
 	m_lastPktSize[ifIndex] = p->GetSize();
 	m_lastPktTs[ifIndex] = Simulator::Now().GetTimeStep();
 }

@@ -35,15 +35,16 @@ uint32_t IntHeader::GetStaticSize(){
 }
 
 void IntHeader::PushHop(uint64_t time, uint64_t bytes, uint32_t qlen, uint64_t rate, 
-						bool isBigflow, uint64_t Rb, uint64_t R, uint32_t card, 
+						bool isBigflow, uint64_t heavyBytes, uint32_t card, 
 						uint16_t p) {
 	// only do this in INT mode
 	if (mode == NORMAL){
 		uint32_t idx = nhop % maxHop;
 		hop[idx].Set(time, bytes, qlen, rate);
 		hop[idx].bigflow = isBigflow ? 1 : 0;
-		hop[idx].Rb = Rb;
-		hop[idx].R = R;
+		// hop[idx].Rb = Rb;
+		// hop[idx].R = R;
+		hop[idx].heavyBytes = heavyBytes;
 		hop[idx].card = card;
 		nhop++;
 		magic_option |= (isBigflow ? 1 : 0);
@@ -57,8 +58,9 @@ void IntHeader::Serialize (Buffer::Iterator start) const{
 		for (uint32_t j = 0; j < maxHop; j++){
 			i.WriteU32(hop[j].buf[0]);
 			i.WriteU32(hop[j].buf[1]);
-			i.WriteU64(hop[j].Rb);
-			i.WriteU64(hop[j].R);
+			// i.WriteU64(hop[j].Rb);
+			// i.WriteU64(hop[j].R);
+			i.WriteU64(hop[j].heavyBytes);
 			i.WriteU64(hop[j].card);
 		}
 		i.WriteU16(nhop);
@@ -84,8 +86,9 @@ uint32_t IntHeader::Deserialize (Buffer::Iterator start){
 		for (uint32_t j = 0; j < maxHop; j++){
 			hop[j].buf[0] = i.ReadU32();
 			hop[j].buf[1] = i.ReadU32();
-			hop[j].Rb = i.ReadU64();
-			hop[j].R = i.ReadU64();
+			// hop[j].Rb = i.ReadU64();
+			// hop[j].R = i.ReadU64();
+			hop[j].heavyBytes = i.ReadU64();
 			hop[j].card = i.ReadU64();
 		}
 		nhop = i.ReadU16();

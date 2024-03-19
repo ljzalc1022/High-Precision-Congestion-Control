@@ -21,6 +21,7 @@ class SwitchNode : public Node{
 	uint32_t m_bytes[pCnt][pCnt][qCnt]; // m_bytes[inDev][outDev][qidx] is the bytes from inDev enqueued for outDev at qidx
 	
 	uint64_t m_txBytes[pCnt]; // counter of tx bytes
+	uint64_t m_txHeavyBytes[pCnt]; // counter tx heavy bytes
 
 	uint32_t m_lastPktSize[pCnt];
 	uint64_t m_lastPktTs[pCnt]; // ns

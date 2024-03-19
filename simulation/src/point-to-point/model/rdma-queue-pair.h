@@ -79,6 +79,9 @@ public:
 		DataRate m_curRate;
 		uint32_t m_incStage;
 	}hpccPint;
+	struct{
+		double m_Rb;
+	} myCC;
 
 	/***********
 	 * methods

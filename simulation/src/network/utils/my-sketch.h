@@ -88,7 +88,7 @@ public:
     {
         int card = GetCard();
         if (card == 0) return 0;
-        return m_rate / card;
+        return 0.9 * m_rate / card;
     }
 
 private:

@@ -79,9 +79,14 @@ public:
 	}
 
 public:
-	uint64_t Rb; // rate of big flows
-	uint64_t R; // total rate
+	// uint64_t Rb; // rate of big flows
+	// uint64_t R; // total rate
+	uint64_t heavyBytes;
 	uint64_t card; // number of flows on the link
+
+	uint64_t GetHBytesDelta(IntHop &b) {
+		return heavyBytes - b.heavyBytes;
+	}
 };
 
 // class Portion {
@@ -127,7 +132,7 @@ public:
 	IntHeader();
 	static uint32_t GetStaticSize();
 	void PushHop(uint64_t time, uint64_t bytes, uint32_t qlen, uint64_t rate, 
-				 bool isBigflow, uint64_t Rb, uint64_t R, uint32_t card, uint16_t p);
+				 bool isBigflow, uint64_t heavyBytes, uint32_t card, uint16_t p);
 	void Serialize (Buffer::Iterator start) const;
 	uint32_t Deserialize (Buffer::Iterator start);
 	uint64_t GetTs(void);
