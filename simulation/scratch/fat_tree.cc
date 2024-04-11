@@ -138,7 +138,7 @@ std::vector<Ipv4Address> serverAddress;
 std::unordered_map<uint32_t, unordered_map<uint32_t, uint16_t> > portNumder;
 
 struct FlowInput{
-	uint32_t src, dst, pg, maxPacketCount, port, dport;
+	uint32_t src, dst, pg, maxByteCount, port, dport;
 	double start_time;
 	uint32_t idx;
 };
@@ -147,9 +147,9 @@ uint32_t flow_num;
 
 void ReadFlowInput(){
 	if (flow_input.idx < flow_num){
-		flowf >> flow_input.src >> flow_input.dst >> flow_input.pg >> flow_input.dport >> flow_input.maxPacketCount >> flow_input.start_time;
+		flowf >> flow_input.src >> flow_input.dst >> flow_input.pg >> flow_input.dport >> flow_input.maxByteCount >> flow_input.start_time;
 		// if small flow, change the priority field to another value (default = 3)
-		// if (flow_input.maxPacketCount <= 100000) { 
+		// if (flow_input.maxByteCount <= 100000) { 
 		// 	flow_input.pg = 1;
 		// }
 		NS_ASSERT(n.Get(flow_input.src)->GetNodeType() == 0 && n.Get(flow_input.dst)->GetNodeType() == 0);
@@ -190,6 +190,7 @@ string hash_file = "hash2.txt";
 std::ofstream hash_out;
 
 void ScheduleFlowInputs(){
+	// see ReadFlowInput
 	while (flow_input.idx < flow_num && Seconds(flow_input.start_time) == Simulator::Now()){
 		uint32_t port = portNumder[flow_input.src][flow_input.dst]++; // get a new port number 
 		// uint32_t srcip = serverAddress[flow_input.src].Get();
@@ -207,8 +208,8 @@ void ScheduleFlowInputs(){
 		// uint32_t hash = HashFunction(srcip, dstip, sport, dport, pg, 0);
 		// hash_out << hash << std::endl;
 		
-		// flow_input.maxPacketCount = 0;
-		RdmaClientHelper clientHelper(flow_input.pg, serverAddress[flow_input.src], serverAddress[flow_input.dst], port, flow_input.dport, flow_input.maxPacketCount, has_win?(global_t==1?maxBdp:pairBdp[n.Get(flow_input.src)][n.Get(flow_input.dst)]):0, global_t==1?maxRtt:pairRtt[flow_input.src][flow_input.dst]);
+		// flow_input.maxByteCount = 0;
+		RdmaClientHelper clientHelper(flow_input.pg, serverAddress[flow_input.src], serverAddress[flow_input.dst], port, flow_input.dport, flow_input.maxByteCount, has_win?(global_t==1?maxBdp:pairBdp[n.Get(flow_input.src)][n.Get(flow_input.dst)]):0, global_t==1?maxRtt:pairRtt[flow_input.src][flow_input.dst]);
 		ApplicationContainer appCon = clientHelper.Install(n.Get(flow_input.src));
 		appCon.Start(Time(0));
 
@@ -235,17 +236,19 @@ uint32_t ip_to_node_id(Ipv4Address ip){
 
 void qp_finish(FILE* fout, Ptr<RdmaQueuePair> q){
 	uint32_t sid = ip_to_node_id(q->sip), did = ip_to_node_id(q->dip);
-	uint64_t base_rtt = pairRtt[sid][did], b = pairBw[sid][did];
-	uint32_t total_bytes = q->m_size + ((q->m_size-1) / packet_payload_size + 1) * (CustomHeader::GetStaticWholeHeaderSize() - IntHeader::GetStaticSize()); // translate to the minimum bytes required (with header but no INT)
-	uint64_t standalone_fct = base_rtt + total_bytes * 8000000000lu / b;
+	uint64_t base_rtt = pairRtt[sid][did], b = pairBw[sid][did];  // pairBw?
+	uint32_t total_bytes = q->m_size + ((q->m_size-1) / packet_payload_size + 1) * (CustomHeader::GetStaticWholeHeaderSize() - IntHeader::GetStaticSize()); 
+	// translate to the minimum bytes required (with header but no INT)
+	uint64_t standalone_fct = base_rtt + total_bytes * 8000000000lu / b;  // in ns
 	// sip, dip, sport, dport, size (B), start_time, fct (ns), standalone_fct (ns)
 	fprintf(fout, "%08x %08x %u %u %lu %lu %lu %lu\n", q->sip.Get(), q->dip.Get(), q->sport, q->dport, q->m_size, q->startTime.GetTimeStep(), (Simulator::Now() - q->startTime).GetTimeStep(), standalone_fct);
+	// TimeStep?
 	fflush(fout);
 
 	// remove rxQp from the receiver
 	Ptr<Node> dstNode = n.Get(did);
 	Ptr<RdmaDriver> rdma = dstNode->GetObject<RdmaDriver> ();
-	rdma->m_rdma->DeleteRxQp(q->sip.Get(), q->m_pg, q->sport);
+	rdma->m_rdma->DeleteRxQp(q->sip.Get(), q->m_pg, q->sport); // pg stands for priority group
 }
 
 void get_pfc(FILE* fout, Ptr<QbbNetDevice> dev, uint32_t type){

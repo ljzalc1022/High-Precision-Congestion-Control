@@ -79,13 +79,30 @@ public:
 	}
 
 public:
-	// uint64_t Rb; // rate of big flows
-	// uint64_t R; // total rate
-	uint64_t heavyBytes;
-	uint64_t card; // number of flows on the link
+	static const int rateWidth = 48;
+	union {
+		struct {
+			uint64_t targetRate: rateWidth,
+					 card0: 64 - rateWidth;
+		};
+		struct {
+			uint64_t heavyBytes: bytesWidth,
+					 card1: 64 - bytesWidth; // number of flows on the link
+		};
+		uint32_t myBuf[2];
+	};
 
 	uint64_t GetHBytesDelta(IntHop &b) {
-		return heavyBytes - b.heavyBytes;
+		if (heavyBytes >= b.heavyBytes)
+			return (heavyBytes - b.heavyBytes) * byteUnit;
+		else 
+			return (heavyBytes + (1<<bytesWidth) - b.heavyBytes) * byteUnit;
+	}
+	void SetMyCC(uint64_t _targetRate, uint64_t _heavyBytes, uint32_t _card) {
+	//	targetRate = _targetRate;
+	//	card0 = _card;
+		heavyBytes = _heavyBytes / byteUnit;
+		card1 = _card;
 	}
 };
 
@@ -132,7 +149,7 @@ public:
 	IntHeader();
 	static uint32_t GetStaticSize();
 	void PushHop(uint64_t time, uint64_t bytes, uint32_t qlen, uint64_t rate, 
-				 bool isBigflow, uint64_t heavyBytes, uint32_t card, uint16_t p);
+				 bool isBigflow, uint64_t heavyBytes, uint64_t targetRate, uint32_t card, uint16_t p);
 	void Serialize (Buffer::Iterator start) const;
 	uint32_t Deserialize (Buffer::Iterator start);
 	uint64_t GetTs(void);

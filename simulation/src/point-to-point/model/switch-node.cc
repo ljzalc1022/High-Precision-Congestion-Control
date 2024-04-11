@@ -258,7 +258,7 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 				// 	else portion = 5;
 				// }
 				ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate(), 
-							tag.m_isBigFlow, m_txHeavyBytes[ifIndex], tag.m_card, portion);
+							tag.m_isBigFlow, m_txHeavyBytes[ifIndex], tag.m_Rb, tag.m_card, portion);
 			}else if (m_ccMode == 10){ // HPCC-PINT
 				uint64_t t = Simulator::Now().GetTimeStep();
 				uint64_t dt = t - m_lastPktTs[ifIndex];

@@ -144,7 +144,7 @@ void RdmaClient::StartApplication (void)
   // get RDMA driver and add up queue pair
   Ptr<Node> node = GetNode();
   Ptr<RdmaDriver> rdma = node->GetObject<RdmaDriver>();
-  rdma->AddQueuePair(m_size, m_pg, m_sip, m_dip, m_sport, m_dport, m_win, m_baseRtt, m_endTime, MakeCallback(&RdmaClient::Finish, this));
+  rdma->AddQueuePair(m_size, m_pg, m_sip, m_dip, m_sport, m_dport, m_win, m_baseRtt, m_endTime, MakeCallback(&RdmaClient::Finish, this));  // see RdmaHw::AddQueuePair
 }
 
 void RdmaClient::StopApplication ()

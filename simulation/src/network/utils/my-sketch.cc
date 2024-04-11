@@ -1,5 +1,7 @@
 #include "my-sketch.h"
 
+#include <cmath>
+
 #include "ns3/core-module.h"
 
 namespace ns3 {
@@ -104,35 +106,16 @@ MySketch::Update(Ptr<Packet> packet, IntTag &tag)
         }
     }
 
-    uint64_t Rb = 0;
-    for (auto it = m_heavyKeys.begin(); it != m_heavyKeys.end();)
-    {
-        auto f = *it;
-        uint64_t R = Query(f);
-        if (R < GetTh() * m_h)
-        {
-            it = m_heavyKeys.erase(it); // erase returns the iterator to the next element
-        }
-        else
-        {
-            Rb += R;
-            ++it; // Move to the next element
-        }
-    }
-    tag.m_isBigFlow = true;
-    if (m_heavyKeys.find(flowkey) == m_heavyKeys.end())
-    {
-        uint64_t R = Query(flowkey);
-        if (R >= GetTh()) 
-        {
-            m_heavyKeys.insert(flowkey);
-            Rb += R;
-        }
-        else tag.m_isBigFlow = false;
-    }
-    tag.m_Rb = Rb;
+    uint64_t rate = Query(flowkey);
+    uint64_t Th = GetThBinary(flowkey, tag);
+    tag.m_isBigFlow = rate >= Th;
     tag.m_R = m_totalBytes * 8 / (Simulator::Now() - m_startTime).GetSeconds();
     tag.m_card = GetCard();
+//    if (Simulator::Now().GetSeconds() > 2.4)
+//    {
+//        printf("At sketch, Time: %.6lf SourceIP: %d\n", Simulator::Now().GetSeconds(), flowkey.sip);
+//        printf("\tmeasured rate: %lu; Threshold: %lu\n", rate, Th);
+//    }
 
     NS_LOG_DEBUG("m_R = " << tag.m_R << ", m_totalBytes = " << m_totalBytes << std::endl);
 }
@@ -141,6 +124,7 @@ uint64_t
 MySketch::Query(const FiveTuple &flowkey)
 {
     std::vector<uint64_t> re(m_nWindows);
+    std::vector<double> tm(m_nWindows);
     for (int i = 0; i < m_nRows; i++)
     {
         int key = Hash(flowkey, i) % m_nColumns;
@@ -148,14 +132,26 @@ MySketch::Query(const FiveTuple &flowkey)
         {
             m_counters[j][i][key].update(0, m_cntWindows, m_nWindows);
             if (!i || re[j] > m_counters[j][i][key].n)
-            {
+            { 
                 re[j] = m_counters[j][i][key].n;
+            }
+            if (!i || tm[j] > m_counters[j][i][key].t) 
+            {
+                tm[j] = m_counters[j][i][key].t;
             }
         }
     }
     uint64_t sz = 0;
-    for (auto s: re) sz += s;
-    return sz * 8 / (Simulator::Now() - m_startTime).GetSeconds();
+    double start = 1e10;
+    for (int i = 0; i < m_nWindows; i++) if(re[i]) 
+    {
+        sz += re[i];
+        if (start > tm[i]) start = tm[i];
+    }
+    double delta = Simulator::Now().GetSeconds() - start;
+    //double delta = (Simulator::Now() - m_startTime).GetSeconds();
+    double rate = fabs(delta) < 1e-12 ? 25e9 : sz * 8 / delta;
+    return rate;
 }
 
 void

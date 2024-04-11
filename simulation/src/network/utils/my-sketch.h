@@ -1,6 +1,9 @@
 #ifndef _MY_SKETCH_H
 #define _MY_SKETCH_H
 
+#include <algorithm>
+#include <cassert>
+
 #include "ns3/custom-header.h"
 #include "ns3/int-tag.h"
 #include "ns3/packet.h"
@@ -31,11 +34,15 @@ private:
     struct data {
         uint64_t n;
         int e;
+        double t;
         data() {n = e = 0;}
         void update(int w, int q, int m)
         {
             if (q - e >= m) n = 0;
-            if (w) n += w, e = q;
+            if (w) {
+                if (n == 0) t = Simulator::Now().GetSeconds();
+                n += w, e = q;
+            }
         }
     };
     using buckets = std::vector<data>;
@@ -65,7 +72,7 @@ private:
             return pg < other.pg;
         }
     };
-    std::set<FiveTuple> m_heavyKeys;
+    std::set<FiveTuple> m_flowKeys;
 
     uint64_t Query(const FiveTuple &flowkey);
 
@@ -75,20 +82,81 @@ private:
 
 private:
     uint64_t m_rate;
+    uint64_t m_lastTh;
 public:
     void setRate(uint64_t rate)
     {
         m_rate = rate;
+        m_lastTh = m_rate;
     }
     uint32_t GetCard()
     {
         return - m_nColumns * log(double(m_nColumns - m_card) / m_nColumns);
     }
-    uint64_t GetTh()
+    uint64_t GetThAvg()
     {
         int card = GetCard();
         if (card == 0) return 0;
-        return 0.9 * m_rate / card;
+        return m_rate / card;
+    }
+    uint64_t GetThBinary(FiveTuple flowkey, IntTag &tag)
+    {
+        std::vector<uint64_t> flowRates, dist;
+
+        m_flowKeys.insert(flowkey);
+        for (auto it = m_flowKeys.begin(); it != m_flowKeys.end();)
+        {
+            uint64_t rate = Query(*it);
+            if (rate == 0)
+            {
+                it = m_flowKeys.erase(it); // erase returns the iterator to the next element
+                continue;
+            }
+            flowRates.push_back(rate);
+            ++it; // Move to the next element
+        }
+        flowRates.push_back(0);
+        std::sort(flowRates.begin(), flowRates.end());
+
+        dist.push_back(0);
+        for (unsigned int i = 1; i < flowRates.size(); i++)
+        {
+            dist.push_back(dist.back() + flowRates[i]);
+        }
+        if (dist.back() < m_rate) 
+        { 
+			int l = 1, r = dist.size() - 1, re = -1;
+			while (l <= r)
+			{
+				int mid = (l + r) >> 1;
+				if (flowRates[mid] >= flowRates.back() * m_h) r = mid - 1, re = mid; 
+				else l = mid + 1;
+			}
+			tag.m_Rb = ((double)m_rate - dist[re - 1]) / (dist.size() - re);
+	//		if (GetCard() == 2 && m_rate == 23750000000)
+	//		{
+	//			printf("rate: %lfGbps; target: %lfGbps; Th: %lfGbps\n", m_rate / 1e9, tag.m_Rb / 1e9, flowRates[re] / 1e9);
+	//			for (auto r: flowRates) printf("%lfGbps ,", r / 1e9);
+	//			printf("\n");
+	//		}
+	//		if (GetCard() != flowRates.size() - 1)
+	//		{
+	//			printf("%u %lu\n", GetCard(), flowRates.size());
+	//			fflush(stdout);
+	//		}
+	//		assert(GetCard() == flowRates.size() - 1);
+			return flowRates[re];
+        }
+
+        int l = 1, r = dist.size() - 1, re = -1;
+        while (l <= r) 
+        {
+            int mid = (l + r) >> 1;
+            if (((double)m_rate - dist[mid - 1]) / (dist.size() - mid) > flowRates[mid]) l = mid + 1;
+            else r = mid - 1, re = mid;
+        }
+		tag.m_Rb = ((double)m_rate - dist[re - 1]) / (dist.size() - re);
+		return flowRates[re];
     }
 
 private:

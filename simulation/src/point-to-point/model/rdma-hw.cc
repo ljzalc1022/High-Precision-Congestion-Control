@@ -210,6 +210,11 @@ TypeId RdmaHw::GetTypeId (void)
 				DoubleValue(0.0),
 				MakeDoubleAccessor(&RdmaHw::m_traceEndTime),
 				MakeDoubleChecker<double>())
+		.AddAttribute("MyCCA",
+				"EWMA factor used to update u",
+				DoubleValue(0.125),
+				MakeDoubleAccessor(&RdmaHw::m_a),
+				MakeDoubleChecker<double>())
 		.AddTraceSource("RateChange",
 				"Rate changes",
 				MakeTraceSourceAccessor(&RdmaHw::m_rateTrace));
@@ -875,28 +880,41 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 				// double u = (double)ih.hop[i].R / ih.hop[i].GetLineRate();
 				
 				// my CC
-				if (m_enableMyCC && u >= m_targetUtil)
+				double Rb = (ih.hop[i].GetHBytesDelta(qp->hp.hop[i])) * 8 / duration;
+				double Rs = txRate - Rb;
+				if (m_enableMyCC && u >= 1.)
 				{
-					double Rb = (ih.hop[i].GetHBytesDelta(qp->hp.hop[i])) * 8 / duration;
+					// double Rs = txRate - Rb;
 					// if (tau > qp->m_baseRtt)
-					// 	tau = qp->m_baseRtt;
+					//   tau = qp->m_baseRtt;
 					// Rb = (qp->myCC.m_Rb * (qp->m_baseRtt - tau) + Rb * tau) / double(qp->m_baseRtt);
-					double Rs = txRate - Rb;
-					qp->myCC.m_Rb = Rb;
+					// qp->myCC.m_Rb = Rb;
 
 					if (!ih.hop[i].bigflow) 
 					{
-						u = 1;
+					 	u = 1;
 					}
 					else
 					{
-						// u = ih.hop[i].Rb / double(ih.hop[i].GetLineRate() * m_targetUtil - (ih.hop[i].R - ih.hop[i].Rb)) * m_targetUtil;
 						double Bb = ih.hop[i].GetLineRate() * m_targetUtil - Rs;
-						u = Rb / Bb + qlenOverT / Bb;
+					 	u = Rb / Bb + qlenOverT / Bb;
+					//	u = qp->hp.m_curRate.GetBitRate() / (double)ih.hop[i].targetRate;
 					}
 					u *= m_targetUtil; // c = u / m_targetUtil
 				}
-				// printf("%.6lf %d %lu %lu %lu %lf\n", Simulator::Now().GetSeconds(), qp->sip.Get(), ih.hop[i].Rb, ih.hop[i].R, ih.hop[i].bigflow, u);
+				if (qp->m_size == 1888403)
+				{
+					printf("Time: %.6lf; SourceIP: %d; Hop %d; Bw: %lfGpbs; Qlen %u\n", 
+						Simulator::Now().GetSeconds(), qp->sip.Get(), i, ih.hop[i].GetLineRate() / 1e9, ih.hop[i].GetQlen());
+					if (m_enableMyCC)
+					{
+					//	printf("\tcard: %lu; curRate: %lfGbps; Th: %lfGbps\n", 
+					//		ih.hop[i].card0, qp->hp.m_curRate.GetBitRate() / 1e9, ih.hop[i].targetRate / 1e9);
+
+						printf("\tcard: %lu; Rb: %lfGbps; Rs: %lfGbps; in %c\n", ih.hop[i].card1, (Rb + qlenOverT) / 1e9, Rs / 1e9, ih.hop[i].bigflow ? 'b' : 's');
+					}
+					printf("\trate: %lfGbps; u:%lf\n", (txRate + qlenOverT) / 1e9, u);
+				}
 
 				#if PRINT_LOG
 				if (print)
@@ -912,7 +930,7 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 						if (u > U){
 							U = u;
 							dt = tau;
-							card = ih.hop[i].card;
+							card = ih.hop[i].card0;
 						}						
 					}
 				}else {
@@ -981,10 +999,24 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 				}
 				if (updated_any){
 					if (!m_enableMagic) {
-						if (dt > qp->m_baseRtt)
-							dt = qp->m_baseRtt;
-						qp->hp.u = (qp->hp.u * (qp->m_baseRtt - dt) + U * dt) / double(qp->m_baseRtt);
-						max_c = qp->hp.u / m_targetUtil;
+						if (!m_enableMyCC)
+						{
+							if (dt > qp->m_baseRtt)
+								dt = qp->m_baseRtt;
+							qp->hp.u = (qp->hp.u * (qp->m_baseRtt - dt) + U * dt) / double(qp->m_baseRtt);
+							U = qp->hp.u;
+						}
+						else 
+						{
+							if (qp->myCC.m_u < 0) qp->myCC.m_u = U;
+							else
+							{
+								qp->myCC.m_u = qp->myCC.m_u * (1 - m_a) + U * m_a;
+							}
+
+							U = qp-qp->>myCC.m_u;
+						}
+						max_c = U / m_targetUtil;
 					}
 					if (m_traceRate) {
 						double time = Simulator::Now().GetSeconds();
@@ -992,6 +1024,10 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 						if (time >= m_traceStartTime && time <= m_traceEndTime)
 							std::cout << "max_c: " << max_c << std::endl;
 					}	
+					if (qp->m_size == 1888403)
+					{
+						printf("max_c = %lf\n", max_c);
+					}
 					DataRate ai = m_rai;
 					if (m_enableDynamicAI) ai = ai / card;
 					if (max_c >= 1 || qp->hp.m_incStage >= m_miThresh){
@@ -1062,7 +1098,11 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 				// 		ChangeRate(qp, new_rate);
 				// 	}
 				// }else{
-				// printf("%d %lu %lu\n", qp->sip.Get(), qp->m_rate.GetBitRate(), new_rate.GetBitRate());
+					if (qp->m_size == 1888403)
+					{
+						printf("%lfGbps -> %lfGpbs\n", qp->m_rate.GetBitRate() / 1e9, new_rate.GetBitRate() / 1e9);
+						printf("---\n");
+					}
 					ChangeRate(qp, new_rate);
 				// }
 			}
@@ -1087,6 +1127,11 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 						// m_rateTrace(qp->hp.m_curRate.GetBitRate(), new_rate.GetBitRate(), max_c);
 						qp->hp.m_curRate = new_rate;					
 						qp->hp.m_incStage = new_incStage;
+						qp->myCC.m_u = -1;
+						if (qp->m_size == 1888403)
+						{
+							printf("END OF RTT\n");
+						}
 					// }
 				}
 				if (m_multipleRate){

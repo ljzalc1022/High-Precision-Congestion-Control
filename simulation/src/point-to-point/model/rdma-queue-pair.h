@@ -81,6 +81,7 @@ public:
 	}hpccPint;
 	struct{
 		double m_Rb;
+		double m_u{-1};
 	} myCC;
 
 	/***********
