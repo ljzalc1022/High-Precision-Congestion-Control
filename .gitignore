@@ -11,3 +11,5 @@ simulation/*.txt
 
 .vscode/
 .python-version
+
+*.swp
