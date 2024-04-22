@@ -1,3 +1,4 @@
+#include <ns3/boolean.h>
 #include <ns3/hash.h>
 #include <ns3/uinteger.h>
 #include <ns3/seq-ts-header.h>
@@ -20,13 +21,15 @@ TypeId RdmaQueuePair::GetTypeId (void)
 	return tid;
 }
 
-RdmaQueuePair::RdmaQueuePair(uint16_t pg, Ipv4Address _sip, Ipv4Address _dip, uint16_t _sport, uint16_t _dport){
+RdmaQueuePair::RdmaQueuePair(uint16_t pg, 
+							 Ipv4Address _sip, Ipv4Address _dip, uint16_t _sport, uint16_t _dport){
 	startTime = Simulator::Now();
 	sip = _sip;
 	dip = _dip;
 	sport = _sport;
 	dport = _dport;
 	m_size = 0;
+	m_appConstrained = false;
 	snd_nxt = snd_una = 0;
 	m_pg = pg;
 	m_ipid = 0;
@@ -70,6 +73,10 @@ RdmaQueuePair::RdmaQueuePair(uint16_t pg, Ipv4Address _sip, Ipv4Address _dip, ui
 
 void RdmaQueuePair::SetSize(uint64_t size){
 	m_size = size;
+}
+
+void RdmaQueuePair::SetAppContrained(bool appConstrained) {
+	m_appConstrained = appConstrained;
 }
 
 void RdmaQueuePair::SetWin(uint32_t win){
@@ -151,7 +158,11 @@ uint64_t RdmaQueuePair::HpGetCurWin(){
 }
 
 bool RdmaQueuePair::IsFinished(){
-	return snd_una >= m_size;
+	return snd_una >= m_size && !m_appConstrained;
+}
+
+void RdmaQueuePair::NewMessage(uint64_t messageSize) {
+	m_size += messageSize;
 }
 
 /*********************

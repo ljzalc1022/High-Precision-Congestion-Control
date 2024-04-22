@@ -18,6 +18,7 @@ public:
 	Ipv4Address sip, dip;
 	uint16_t sport, dport;
 	uint64_t m_size;
+	bool m_appConstrained;
 	uint64_t snd_nxt, snd_una; // next seq to send, the highest unacked seq
 	uint16_t m_pg;
 	uint16_t m_ipid;
@@ -27,7 +28,7 @@ public:
 	bool m_var_win; // variable window size
 	Time m_nextAvail;	//< Soonest time of next send
 	uint32_t wp; // current window of packets
-	uint32_t lastPktSize;
+	uint32_t nextPktSize;
 	Callback<void> m_notifyAppFinish;
 
 	/******************************
@@ -90,6 +91,7 @@ public:
 	static TypeId GetTypeId (void);
 	RdmaQueuePair(uint16_t pg, Ipv4Address _sip, Ipv4Address _dip, uint16_t _sport, uint16_t _dport);
 	void SetSize(uint64_t size);
+	void SetAppContrained(bool appConstrained);
 	void SetWin(uint32_t win);
 	void SetBaseRtt(uint64_t baseRtt);
 	void SetVarWin(bool v);
@@ -103,6 +105,8 @@ public:
 	uint64_t GetWin(); // window size calculated from m_rate
 	bool IsFinished();
 	uint64_t HpGetCurWin(); // window size calculated from hp.m_curRate, used by HPCC
+
+	void NewMessage(uint64_t messageSize);
 };
 
 class RdmaRxQueuePair : public Object { // Rx side queue pair

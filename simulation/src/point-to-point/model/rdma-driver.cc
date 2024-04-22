@@ -52,6 +52,12 @@ void RdmaDriver::Init(void){
 	m_rdma->Setup(MakeCallback(&RdmaDriver::QpComplete, this));
 }
 
+void RdmaDriver::newMessage(uint32_t dip, uint16_t sport, uint16_t pg, uint64_t messageSize) {
+	Ptr<RdmaQueuePair> qp = m_rdma->GetQp(dip, sport, pg);
+	qp->NewMessage(messageSize);
+	m_rdma->NewMessage(qp);
+}
+
 void RdmaDriver::SetNode(Ptr<Node> node){
 	m_node = node;
 }

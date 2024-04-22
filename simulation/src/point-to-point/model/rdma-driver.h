@@ -26,6 +26,8 @@ public:
 	// So this must be called after all NICs are installed
 	void Init(void);
 
+	void newMessage(uint32_t dip, uint16_t sport, uint16_t pg, uint64_t messageSize);
+
 	// Set Node
 	void SetNode(Ptr<Node> node);
 

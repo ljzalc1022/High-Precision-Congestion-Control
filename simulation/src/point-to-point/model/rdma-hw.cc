@@ -595,10 +595,14 @@ void RdmaHw::RedistributeQp(){
 	}
 }
 
+uint32_t RdmaHw::NxtPacketSize(Ptr<RdmaQueuePair> qp) {
+	uint32_t re = qp->GetBytesLeft();
+	if (m_mtu < re) re = m_mtu;
+	return re;
+}
+
 Ptr<Packet> RdmaHw::GetNxtPacket(Ptr<RdmaQueuePair> qp){
-	uint32_t payload_size = qp->GetBytesLeft();
-	if (m_mtu < payload_size)
-		payload_size = m_mtu;
+	uint32_t payload_size = NxtPacketSize(qp);
 	Ptr<Packet> p = Create<Packet> (payload_size);
 	// add SeqTsHeader
 	SeqTsHeader seqTs;
@@ -635,7 +639,7 @@ Ptr<Packet> RdmaHw::GetNxtPacket(Ptr<RdmaQueuePair> qp){
 
 void RdmaHw::PktSent(Ptr<RdmaQueuePair> qp, Ptr<Packet> pkt, Time interframeGap){
 	m_txTrace(pkt, qp);
-	qp->lastPktSize = pkt->GetSize();
+	qp->nextPktSize = NxtPacketSize(qp);
 	UpdateNextAvail(qp, interframeGap, pkt->GetSize());
 }
 
@@ -650,8 +654,8 @@ void RdmaHw::UpdateNextAvail(Ptr<RdmaQueuePair> qp, Time interframeGap, uint32_t
 
 void RdmaHw::ChangeRate(Ptr<RdmaQueuePair> qp, DataRate new_rate){
 	#if 1
-	Time sendingTime = Seconds(qp->m_rate.CalculateTxTime(qp->lastPktSize));
-	Time new_sendintTime = Seconds(new_rate.CalculateTxTime(qp->lastPktSize));
+	Time sendingTime = Seconds(qp->m_rate.CalculateTxTime(qp->nextPktSize));
+	Time new_sendintTime = Seconds(new_rate.CalculateTxTime(qp->nextPktSize));
 	qp->m_nextAvail = qp->m_nextAvail + new_sendintTime - sendingTime;
 	// update nic's next avail event
 	uint32_t nic_idx = GetNicIdxOfQp(qp);
@@ -668,6 +672,21 @@ void RdmaHw::ChangeRate(Ptr<RdmaQueuePair> qp, DataRate new_rate){
 	}
 	// change to new rate
 	qp->m_rate = new_rate;
+}
+
+void RdmaHw::NewMessage(Ptr<RdmaQueuePair> qp) {
+	int new_nextPktSize = NxtPacketSize(qp);
+	Time new_sendingTime = Seconds(qp->m_rate.CalculateTxTime(new_nextPktSize));
+	if (qp->nextPktSize != 0) {
+		Time sendingTime = Seconds(qp->m_rate.CalculateTxTime(qp->nextPktSize));
+		qp->m_nextAvail = qp->m_nextAvail + new_sendingTime - sendingTime;
+	}
+	else {
+		qp->m_nextAvail = Simulator::Now() + new_sendingTime;		
+	}
+	qp->nextPktSize = new_nextPktSize;
+	uint32_t nic_idx = GetNicIdxOfQp(qp);
+	m_nic[nic_idx].dev->UpdateNextAvail(qp->m_nextAvail);
 }
 
 #define PRINT_LOG 0
@@ -1014,7 +1033,7 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 								qp->myCC.m_u = qp->myCC.m_u * (1 - m_a) + U * m_a;
 							}
 
-							U = qp-qp->>myCC.m_u;
+							U = qp->myCC.m_u;
 						}
 						max_c = U / m_targetUtil;
 					}

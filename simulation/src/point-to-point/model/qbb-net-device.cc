@@ -531,5 +531,10 @@ namespace ns3 {
 			Time delta = t < Simulator::Now() ? Time(0) : t - Simulator::Now();
 			m_nextSend = Simulator::Schedule(delta, &QbbNetDevice::DequeueAndTransmit, this);
 		}
+		else if (m_nextSend.IsExpired()) {
+			NS_ASSERT(t >= Simulator::Now());
+			Time delta = t - Simulator::Now();
+			m_nextSend = Simulator::Schedule(delta, &QbbNetDevice::DequeueAndTransmit, this);
+		}
 	}
 } // namespace ns3
