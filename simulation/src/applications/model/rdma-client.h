@@ -70,6 +70,7 @@ private:
   virtual void StartApplication (void);
   virtual void StopApplication (void);
 
+protected:
   uint64_t m_size;
   uint16_t m_pg;
 

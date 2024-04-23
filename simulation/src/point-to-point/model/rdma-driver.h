@@ -26,7 +26,7 @@ public:
 	// So this must be called after all NICs are installed
 	void Init(void);
 
-	void newMessage(uint32_t dip, uint16_t sport, uint16_t pg, uint64_t messageSize);
+	void NewMessage(Ipv4Address dip, uint16_t sport, uint16_t pg, uint64_t messageSize);
 
 	// Set Node
 	void SetNode(Ptr<Node> node);
@@ -34,8 +34,14 @@ public:
 	// Set RdmaHw
 	void SetRdmaHw(Ptr<RdmaHw> rdma);
 
+	// Set App Contrained
+	void SetAppContrained(uint16_t pg, Ipv4Address dip, uint16_t sport, bool appContrained);
+
 	// add a queue pair
-	void AddQueuePair(uint64_t size, uint16_t pg, Ipv4Address _sip, Ipv4Address _dip, uint16_t _sport, uint16_t _dport, uint32_t win, uint64_t baseRtt, double endTime, Callback<void> notifyAppFinish);
+	void AddQueuePair(uint64_t size, uint16_t pg, 
+					  Ipv4Address _sip, Ipv4Address _dip, uint16_t _sport, uint16_t _dport, 
+					  uint32_t win, uint64_t baseRtt, 
+					  double endTime, Callback<void> notifyAppFinish);
 
 	// callback when qp completes
 	void QpComplete(Ptr<RdmaQueuePair> q);

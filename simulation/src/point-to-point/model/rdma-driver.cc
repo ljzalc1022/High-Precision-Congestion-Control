@@ -52,8 +52,8 @@ void RdmaDriver::Init(void){
 	m_rdma->Setup(MakeCallback(&RdmaDriver::QpComplete, this));
 }
 
-void RdmaDriver::newMessage(uint32_t dip, uint16_t sport, uint16_t pg, uint64_t messageSize) {
-	Ptr<RdmaQueuePair> qp = m_rdma->GetQp(dip, sport, pg);
+void RdmaDriver::NewMessage(Ipv4Address dip, uint16_t sport, uint16_t pg, uint64_t messageSize) {
+	Ptr<RdmaQueuePair> qp = m_rdma->GetQp(dip.Get(), sport, pg);
 	qp->NewMessage(messageSize);
 	m_rdma->NewMessage(qp);
 }
@@ -64,6 +64,12 @@ void RdmaDriver::SetNode(Ptr<Node> node){
 
 void RdmaDriver::SetRdmaHw(Ptr<RdmaHw> rdma){
 	m_rdma = rdma;
+}
+
+void RdmaDriver::SetAppContrained(uint16_t pg, Ipv4Address dip, uint16_t sport, 
+							      bool appConstrained) {	
+	Ptr<RdmaQueuePair> qp = m_rdma->GetQp(dip.Get(), sport, pg);
+	qp->SetAppContrained(appConstrained);
 }
 
 void RdmaDriver::AddQueuePair(uint64_t size, uint16_t pg, Ipv4Address sip, Ipv4Address dip, uint16_t sport, uint16_t dport, uint32_t win, uint64_t baseRtt, double endTime, Callback<void> notifyAppFinish){
